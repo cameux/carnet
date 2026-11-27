@@ -3,51 +3,1810 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Carnet</title>
+<title>Carnet de cuisine</title>
 <meta name="apple-mobile-web-app-title" content="Carnet">
-<meta name="theme-color" content="#f8ebcf">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f0f0f" media="(prefers-color-scheme: dark)">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/svg+xml" href="icone.svg">
 <link rel="manifest" href="manifest.webmanifest">
-<script>
-  // Lancée depuis l'icône de l'écran d'accueil (adresse enregistrée avec ?ouvrir) : on file directement au carnet.
-  var CARNET = "https://claude.ai/artifact/UAdoBjntUvv9Y28CGQKwjS";
-  if (location.search.indexOf("ouvrir") !== -1) location.replace(CARNET);
-</script>
 <style>
-  :root { --bg: #f8ebcf; --ink: #3b2a08; --saffron: #b97a0c; --muted: #7a6439 }
-  @media (prefers-color-scheme: dark) { :root { --bg: #241c0c; --ink: #f6e9cc; --saffron: #f0b74a; --muted: #c2a877 } }
-  * { box-sizing: border-box }
-  body { margin: 0; min-height: 100dvh; display: grid; place-items: center; background: var(--bg); color: var(--ink);
-    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; padding: 24px 20px calc(24px + env(safe-area-inset-bottom)) }
-  main { max-width: 380px; width: 100%; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 18px }
-  .logo { width: 112px; height: 112px; border-radius: 26px; background: rgba(185, 122, 12, .12); color: var(--saffron); display: grid; place-items: center }
-  .logo svg { width: 84px; height: 84px; overflow: visible }
-  .steam path { animation: steam 3.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center bottom }
-  .steam path:nth-child(2) { animation-delay: -1.1s } .steam path:nth-child(3) { animation-delay: -2.2s }
-  @keyframes steam { 0% { opacity: 0; transform: translateY(2px) scaleY(.8) } 35% { opacity: 1 } 75% { opacity: .5 } 100% { opacity: 0; transform: translateY(-3px) scaleY(1.1) } }
-  @media (prefers-reduced-motion: reduce) { .steam path { animation: none } }
-  h1 { margin: 0; font-size: 1.8rem; letter-spacing: -.02em }
-  a.go { display: inline-flex; align-items: center; justify-content: center; min-height: 50px; padding: 0 28px; border-radius: 999px; background: var(--saffron); color: #fff; font-weight: 600; text-decoration: none }
-  ol { text-align: left; color: var(--muted); font-size: .92rem; margin: 6px 0 0; padding-left: 1.3em }
-  ol li { margin: 4px 0 }
-  b { color: var(--ink) }
+/* équivalent du cadre que claude.ai ajoute autour de la page */
+:root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px) }
+body { margin: 0; font: 14px/1.4 system-ui, sans-serif }
+img { max-width: 100% }
+[hidden] { display: none !important }
+/* écran de connexion */
+.fb-gate { position: fixed; inset: 0; z-index: 100; background: var(--bg, #fff); color: var(--ink, #111); display: grid; place-items: center; padding: 24px max(20px, env(safe-area-inset-right, 0px)) 24px max(20px, env(safe-area-inset-left, 0px)) }
+.fb-box { max-width: 360px; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center }
+.fb-logo { color: var(--acc, #d63c1e) } .fb-logo svg { width: 64px; height: 64px }
+.fb-box h1 { font-size: 1.6rem; margin: 0 }
+.fb-msg, .fb-prog { margin: 0; color: var(--muted, #666) }
+.fb-acts { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center }
 </style>
+<script>
+  // Interface « claude.use » fournie par firebase.js (module chargé en fin de page)
+  window.__IA = "Gemini";
+  window.__fb = new Promise(function (r) { window.__fbResolve = r; });
+  window.claude = { use: function (n) { return window.__fb.then(function (f) { return f.use(n); }); } };
+</script>
 </head>
 <body>
-<main>
-  <div class="logo" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><g class="steam"><path d="M11 9c-1.4-1.3 1.4-2.7 0-4"/><path d="M16 8.5c-1.6-1.5 1.6-3 0-4.5"/><path d="M21 9c-1.4-1.3 1.4-2.7 0-4"/></g><path d="M14.5 12.3h3"/><path d="M6 15h20"/><path d="M7.5 15v8.5A3.5 3.5 0 0 0 11 27h10a3.5 3.5 0 0 0 3.5-3.5V15"/><path d="M7.5 18H4.5M24.5 18h3"/></svg></div>
-  <h1>Carnet de cuisine</h1>
-  <a class="go" id="go" href="https://claude.ai/artifact/UAdoBjntUvv9Y28CGQKwjS">Ouvrir le carnet</a>
-  <ol>
-    <li>Dans Safari, touche <b>Partager</b>.</li>
-    <li>Choisis <b>Ajouter à l'écran d'accueil</b>, puis <b>Ajouter</b>.</li>
-    <li>L'icône casserole ouvrira directement le carnet.</li>
-  </ol>
-</main>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout : mobile d'abord. En-tête collant (titre + ajout, recherche, catégories), grille de fiches,
+   chaque vue (fiche, éditeur, import) en panneau plein écran avec sa barre collante et son entrée d'historique. */
+/* Direction « Fiche technique » : noir sur blanc, filets fins, une seule couleur (--acc) pour signaler.
+   Hiérarchie : nom du plat > temps > quantités (colonne en chiffres alignés, Geist Mono). */
+:root {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --sunk: #f4f4f3;
+  --ink: #111111;
+  --muted: #6e6e6c;
+  --line: #e6e6e4;
+  --basil: #111111;     /* accent d'interface : encre */
+  --basil-ink: #ffffff;
+  --basil-soft: #f4f4f3;
+  --acc: #d63c1e;       /* la seule couleur : catégorie, quantités recalculées, numéros */
+  --saffron: #d63c1e;
+  --saffron-soft: #fde8e2;
+  --danger: #c4361c;
+  --scrim: rgba(17, 17, 17, .45);
+  --shadow: 0 1px 2px rgba(0,0,0,.06), 0 8px 22px rgba(0,0,0,.10);
+  --f-display: "Geist", "Helvetica Neue", system-ui, sans-serif;
+  --f-body: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --r: 6px;
+  --tone-mix: 36%;     /* part de la couleur de la photo dans le fond d'une ligne */
+  --tap: 44px;
+  --gut-l: max(16px, env(safe-area-inset-left, 0px));
+  --gut-r: max(16px, env(safe-area-inset-right, 0px));
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f0f0f; --surface: #171717; --sunk: #1f1f1f; --ink: #f2f2f2; --muted: #9b9b98; --line: #2a2a2a;
+  --basil: #f2f2f2; --basil-ink: #0f0f0f; --basil-soft: #1f1f1f; --acc: #ff6b4d; --saffron: #ff6b4d; --saffron-soft: #3a1b13; --danger: #f07a62; --tone-mix: 40%;
+  --scrim: rgba(0,0,0,.6); --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 22px rgba(0,0,0,.35); color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0f0f0f; --surface: #171717; --sunk: #1f1f1f; --ink: #f2f2f2; --muted: #9b9b98; --line: #2a2a2a;
+  --basil: #f2f2f2; --basil-ink: #0f0f0f; --basil-soft: #1f1f1f; --acc: #ff6b4d; --saffron: #ff6b4d; --saffron-soft: #3a1b13; --danger: #f07a62; --tone-mix: 40%;
+  --scrim: rgba(0,0,0,.6); --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 22px rgba(0,0,0,.35); color-scheme: dark }
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.5; -webkit-text-size-adjust: 100% }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg) }
+.wrap { max-width: 1120px; margin: 0 auto; padding-left: var(--gut-l); padding-right: var(--gut-r) }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0 }
+button, input, select, textarea { font: inherit; color: inherit }
+button { cursor: pointer; touch-action: manipulation }
+:focus-visible { outline: 2px solid var(--basil); outline-offset: 2px }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap }
+
+/* Boutons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: var(--tap); border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 0 16px; font-weight: 500; white-space: nowrap; font-size: .95rem }
+.btn:hover { border-color: var(--muted) }
+.btn.primary { background: var(--basil); color: var(--basil-ink); border-color: var(--basil); font-weight: 600 }
+.btn.ghost { background: transparent; border-color: transparent }
+.btn.danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 45%, transparent); background: transparent }
+.btn.icon { width: var(--tap); padding: 0; font-size: 1.15rem }
+.btn.on { background: var(--basil-soft); border-color: var(--basil); color: var(--basil) }
+.btn[disabled] { opacity: .5; cursor: default }
+.btn svg { width: 20px; height: 20px; flex: none }
+
+/* En-tête */
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line) }
+header.top .wrap { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px 12px; padding-block: 12px 10px; align-items: center }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0 }
+.logo { width: 38px; height: 38px; flex: none; border-radius: 12px; background: var(--saffron-soft); color: var(--saffron); display: grid; place-items: center }
+.logo svg { width: 28px; height: 28px; overflow: visible }
+.logo .steam path { animation: steam 3.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center bottom }
+.logo .steam path:nth-child(2) { animation-delay: -1.1s }
+.logo .steam path:nth-child(3) { animation-delay: -2.2s }
+@keyframes steam { 0% { opacity: 0; transform: translateY(2px) scaleY(.8) } 35% { opacity: 1 } 75% { opacity: .5 } 100% { opacity: 0; transform: translateY(-3px) scaleY(1.1) } }
+.brand h1 { font-size: 1.45rem; font-weight: 800; letter-spacing: -.02em; white-space: nowrap }
+.brand .count { color: var(--muted); font-size: .85rem; font-variant-numeric: tabular-nums; white-space: nowrap }
+.search { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 0 6px 0 14px; min-height: var(--tap); min-width: 0 }
+.search svg { color: var(--muted); flex: none }
+.search input { border: 0; background: transparent; outline: none; width: 100%; min-width: 0; font-size: 16px; padding: 10px 0 }
+.search input::-webkit-search-cancel-button { display: none }
+.search .clear { border: 0; background: transparent; width: 36px; height: 36px; border-radius: 50%; color: var(--muted); font-size: 1.2rem }
+.chips { grid-column: 1 / -1; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin-inline: calc(-1 * var(--gut-l)) calc(-1 * var(--gut-r)); padding-inline: var(--gut-l) var(--gut-r); scroll-padding-inline: var(--gut-l) }
+.chips::-webkit-scrollbar { display: none }
+.chip { border: 1px solid var(--line); background: transparent; border-radius: 999px; min-height: 36px; padding: 0 14px; font-size: .88rem; white-space: nowrap; color: var(--muted); flex: none }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink) }
+.chip .n { opacity: .6; margin-left: 5px; font-variant-numeric: tabular-nums }
+.add-label { display: none }
+@media (min-width: 720px) {
+  header.top .wrap { grid-template-columns: auto minmax(0, 1fr) auto }
+  .search { grid-column: auto }
+  .brand h1 { font-size: 1.7rem }
+  .add-label { display: inline }
+  #addBtn { width: auto; padding: 0 18px }
+}
+
+/* Menu d'ajout : feuille par le bas sur téléphone, menu sous le bouton sur grand écran */
+.scrim { position: fixed; inset: 0; background: var(--scrim); z-index: 30 }
+.menu { position: fixed; z-index: 31; left: 0; right: 0; bottom: 0; background: var(--surface); border-radius: 20px 20px 0 0; box-shadow: var(--shadow);
+  padding: 8px var(--gut-r) calc(12px + env(safe-area-inset-bottom, 0px)) var(--gut-l); display: flex; flex-direction: column; gap: 2px; animation: up .18s ease-out }
+.menu::before { content: ""; width: 40px; height: 4px; border-radius: 2px; background: var(--line); align-self: center; margin: 4px 0 10px }
+.menu h2 { font-size: 1.1rem; padding: 0 8px 8px }
+.menu button { display: grid; grid-template-columns: 40px 1fr; gap: 0 12px; align-items: center; width: 100%; text-align: left; border: 0; background: transparent; padding: 10px 8px; border-radius: 12px; min-height: 60px }
+.menu button:hover, .menu button:active { background: var(--sunk) }
+.menu .ic { grid-row: span 2; width: 40px; height: 40px; border-radius: 12px; background: var(--basil-soft); display: grid; place-items: center; color: var(--basil) }
+.menu .ic svg { width: 20px; height: 20px }
+.menu b { font-weight: 600 }
+.menu small { color: var(--muted); font-size: .82rem; line-height: 1.3 }
+@keyframes up { from { transform: translateY(30px); opacity: 0 } }
+@media (min-width: 720px) {
+  .scrim.menu-scrim { background: transparent }
+  .menu { left: auto; right: max(16px, calc((100vw - 1120px) / 2 + 16px)); bottom: auto; top: calc(env(safe-area-inset-top, 0px) + 64px); width: 300px; border-radius: var(--r); padding: 6px; border: 1px solid var(--line); animation: none }
+  .menu::before, .menu h2 { display: none }
+}
+
+/* Grille */
+main .wrap { padding-block: 16px calc(48px + env(safe-area-inset-bottom, 0px)) }
+.status { color: var(--muted); font-size: .9rem; margin-bottom: 12px }
+.status:empty { display: none }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px }
+.card { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; text-align: left; padding: 0; transition: transform .15s ease, box-shadow .15s ease; min-width: 0 }
+@media (hover: hover) { .card:hover { transform: translateY(-2px); box-shadow: var(--shadow) } }
+.card:active { transform: scale(.98) }
+.thumb { aspect-ratio: 4 / 3; max-width: 100%; background: var(--sunk); position: relative; overflow: hidden }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block }
+.thumb .mono { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--f-display); font-weight: 800; font-size: 3rem; color: color-mix(in srgb, var(--basil) 50%, transparent); letter-spacing: -.04em }
+.thumb .fav { position: absolute; top: 8px; right: 8px; background: var(--surface); color: var(--saffron); border-radius: 999px; width: 28px; height: 28px; display: grid; place-items: center; font-size: .9rem }
+.card .body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0 }
+.card h3 { font-size: 1.05rem; font-weight: 700; line-height: 1.22; overflow-wrap: anywhere }
+.meta { display: flex; flex-wrap: wrap; gap: 2px 10px; color: var(--muted); font-size: .8rem; font-variant-numeric: tabular-nums }
+.cat { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--basil); font-weight: 600 }
+@media (max-width: 560px) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px }
+  .card h3 { font-size: .96rem }
+  .thumb .mono { font-size: 2.3rem }
+  .card .body { padding: 8px 10px 10px }
+}
+
+/* État vide */
+.empty { border: 1.5px dashed var(--line); border-radius: var(--r); padding: 36px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px }
+.empty h2 { font-size: 1.4rem }
+.empty p { color: var(--muted); max-width: 46ch; margin: 0 }
+.empty .opts { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center }
+
+/* Panneaux plein écran */
+.sheet { position: fixed; inset: 0; z-index: 20; background: var(--bg); overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch }
+.sheet .bar { position: sticky; top: 0; z-index: 3; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); padding-top: env(safe-area-inset-top, 0px) }
+.sheet .bar .wrap { display: flex; align-items: center; gap: 6px; min-height: 56px }
+.sheet .bar .sp { flex: 1; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-left: 4px }
+.sheet .bar .back { padding-left: 8px; margin-left: -8px }
+.sheet .content { padding-block: 20px calc(40px + env(safe-area-inset-bottom, 0px)) }
+
+/* Fiche recette */
+.recipe { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: 36px; align-items: start }
+.hero-img { border-radius: var(--r); overflow: hidden; aspect-ratio: 4/3; max-width: 100%; background: var(--sunk); margin-bottom: 18px }
+.hero-img img { width: 100%; height: 100%; object-fit: cover; display: block }
+/* Galerie : photo principale + photos des notes, à balayer */
+.hero-img { position: relative }
+.gal { display: flex; width: 100%; height: 100%; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; outline: none }
+.gal::-webkit-scrollbar { display: none }
+.gal img { flex: 0 0 100%; min-width: 100%; scroll-snap-align: center; scroll-snap-stop: always; user-select: none; -webkit-user-drag: none; -webkit-touch-callout: none }
+.dots { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); display: flex; gap: 6px; padding: 6px 9px; border-radius: 999px; background: rgba(12, 16, 14, .32); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); pointer-events: none }
+.dots i { width: 6px; height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .55); transition: width .3s var(--ease), background-color .3s var(--ease) }
+.dots i.on { width: 18px; background: #fff }
+.gal-cap { position: absolute; left: 12px; top: 12px; font-size: .74rem; font-weight: 600; letter-spacing: .02em; color: #fff; background: rgba(12, 16, 14, .38); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 4px 10px; border-radius: 999px; pointer-events: none; animation: fade .25s ease-out }
+.gal-nav { display: none; position: absolute; top: 50%; margin-top: -18px; width: 36px; height: 36px; border-radius: 50%; border: 0; background: rgba(255, 255, 255, .9); color: #1c231f; place-items: center; box-shadow: 0 2px 10px rgba(0, 0, 0, .18) }
+.gal-nav svg { width: 18px; height: 18px }
+.gal-nav.prev { left: 10px } .gal-nav.next { right: 10px } .gal-nav.next svg { transform: rotate(180deg) }
+@media (hover: hover) { .hero-img.multi:hover .gal-nav:not([disabled]) { display: grid } }
+/* Photos dans les notes */
+.nphotos { display: flex; gap: 8px; flex-wrap: wrap }
+.nphoto { position: relative; width: 68px; height: 68px; border-radius: 10px; overflow: hidden; flex: none; padding: 0; border: 0; background: var(--sunk); transition: transform .15s var(--ease) }
+button.nphoto:active { transform: scale(.94) }
+.nphoto img { width: 100%; height: 100%; object-fit: cover; display: block }
+.nphoto .x { position: absolute; top: 3px; right: 3px; width: 24px; height: 24px; border-radius: 50%; background: rgba(12, 16, 14, .6); color: #fff; border: 0; font-size: 15px; line-height: 1; display: grid; place-items: center; padding: 0 }
+.nphoto.new { animation: pop .32s var(--spring) }
+.mynote .nphotos { grid-column: 1 / -1; margin: 8px 0 2px }
+.note-add .nphotos, .mynote.editing .nphotos { padding: 2px 6px }
+.row .cam { margin-right: auto; color: var(--basil) }
+.note-add .row .cam + small { margin-right: auto }
+h2.title { font-size: clamp(1.7rem, 5vw, 2.5rem); font-weight: 800; letter-spacing: -.02em; line-height: 1.06; margin: 4px 0 12px; overflow-wrap: anywhere }
+.times { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 0; color: var(--muted); font-size: .88rem; margin: -4px 0 12px; font-variant-numeric: tabular-nums }
+.times svg { width: 16px; height: 16px; margin-right: 6px; flex: none }
+.times .time b { color: var(--ink); font-weight: 600 }
+.times .time + .time::before { content: "·"; margin: 0 8px; color: var(--line) }
+.facts { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px }
+.fact { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 6px 12px; display: flex; flex-direction: column; font-variant-numeric: tabular-nums }
+.fact small { font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted) }
+.fact b { font-weight: 600 }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px }
+.tag { font-size: .8rem; background: var(--sunk); border-radius: 999px; padding: 3px 10px; color: var(--muted) }
+.section-h { font-size: .76rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-family: var(--f-body); font-weight: 600; margin: 0 0 10px; scroll-margin-top: 120px }
+/* Bloc portions */
+.yield { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 10px 12px; margin-bottom: 14px }
+.stepper { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 999px; background: var(--bg) }
+.stepper button { border: 0; background: transparent; width: var(--tap); height: var(--tap); font-size: 1.35rem; line-height: 1; border-radius: 50%; color: var(--basil) }
+.stepper button:active { background: var(--sunk) }
+.stepper button[disabled] { color: var(--line) }
+.stepper output { min-width: 3ch; text-align: center; font-weight: 700; font-size: 1.15rem; font-variant-numeric: tabular-nums }
+.yield .lbl { font-weight: 500 }
+.yield .reset { margin-left: auto; border: 0; background: transparent; color: var(--basil); font-weight: 600; min-height: var(--tap); padding: 0 4px; font-size: .9rem }
+.yield .units { flex-basis: 100%; display: flex; align-items: center; gap: 10px; border-top: 1px solid var(--line); padding-top: 10px; margin-top: 2px }
+.units-l { font-size: .82rem; color: var(--muted); font-weight: 600 }
+.seg { display: inline-flex; background: var(--sunk); border-radius: 999px; padding: 3px; gap: 2px; flex: 1; max-width: 330px }
+.seg button { flex: 1; border: 0; background: transparent; border-radius: 999px; min-height: 34px; padding: 0 10px; font-size: .86rem; font-weight: 500; color: var(--muted); transition: background-color .25s var(--ease), color .25s var(--ease), box-shadow .25s var(--ease), transform .12s var(--ease) }
+.seg button[aria-checked="true"] { background: var(--surface); color: var(--ink); font-weight: 600; box-shadow: 0 1px 4px rgba(20, 30, 24, .14) }
+.seg button:active { transform: scale(.95) }
+.units-tip { flex-basis: 100%; font-size: .78rem; color: var(--muted); margin: 0; border-top: 1px solid var(--line); padding-top: 8px }
+.qa { border-bottom: 1.5px dotted color-mix(in srgb, var(--muted) 60%, transparent); cursor: pointer; border-radius: 3px; transition: background-color .2s var(--ease), border-color .2s var(--ease); -webkit-tap-highlight-color: transparent }
+.qa:hover, .qa.on { background: var(--saffron-soft); border-bottom-color: var(--saffron) }
+.qpop { position: fixed; z-index: 45; background: var(--ink); color: var(--bg); border-radius: 12px; padding: 8px 12px; font-size: .92rem; font-weight: 600; line-height: 1.4; box-shadow: var(--shadow); max-width: min(280px, calc(100vw - 16px)); font-variant-numeric: tabular-nums; animation: popIn .22s var(--spring) both; transform-origin: var(--ax, 50%) bottom }
+.qpop.below { transform-origin: var(--ax, 50%) top }
+.qpop .eq { opacity: .6; font-weight: 500 }
+.qpop::after { content: ""; position: absolute; left: calc(var(--ax, 50%) - 6px); width: 12px; height: 12px; background: inherit; transform: rotate(45deg); border-radius: 2px }
+.qpop.above::after { bottom: -5px } .qpop.below::after { top: -5px }
+.qpop.out { opacity: 0; transform: scale(.92); transition: opacity .15s, transform .15s }
+@keyframes popIn { from { opacity: 0; transform: scale(.85) } }
+.yield .hint { flex-basis: 100%; font-size: .82rem; color: var(--muted); margin: -2px 0 0 }
+.q { color: var(--saffron); font-weight: 700; background: var(--saffron-soft); border-radius: 4px; padding: 0 3px; font-variant-numeric: tabular-nums }
+ul.ingr { list-style: none; padding: 0; margin: 0 0 28px; display: flex; flex-direction: column }
+ul.ingr li.grp { padding: 16px 0 4px; font-weight: 700; font-family: var(--f-display); font-size: 1.05rem }
+ul.ingr label { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--line); min-height: var(--tap); cursor: pointer }
+ul.ingr input { width: 22px; height: 22px; margin: 1px 0 0; flex: none; accent-color: var(--basil) }
+ul.ingr li.done span { text-decoration: line-through; color: var(--muted) }
+ul.ingr li.done .q { background: transparent; color: var(--muted) }
+ol.steps { list-style: none; counter-reset: s; padding: 0; margin: 0 0 28px; display: flex; flex-direction: column; gap: 6px }
+ol.steps li { counter-increment: s; display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 10px; cursor: pointer; max-width: 68ch; padding: 10px 10px 10px 4px; border-radius: 12px; font-size: 1.04rem; line-height: 1.6 }
+ol.steps li:active { background: var(--sunk) }
+ol.steps li::before { content: counter(s); font-family: var(--f-display); font-weight: 700; color: var(--basil); font-size: 1.3rem; line-height: 1.25; text-align: center }
+ol.steps li.done { color: var(--muted) }
+ol.steps li.done::before { content: "✓" }
+.notes { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; white-space: pre-wrap; max-width: 68ch; overflow-wrap: anywhere }
+.src { font-size: .88rem; color: var(--muted); margin-top: 16px; overflow-wrap: anywhere }
+.src a { color: var(--basil) }
+.tabs { display: none }
+@media (max-width: 760px) {
+  .recipe { grid-template-columns: minmax(0, 1fr); gap: 0 }
+  .recipe > div { display: contents }   /* les onglets collent sur toute la fiche, pas seulement la colonne des ingrédients */
+  .sheet .content.flush { padding-top: 0 }
+  .hero-img { aspect-ratio: 16/10; border-radius: 0; margin: 0 calc(-1 * var(--gut-r)) 16px calc(-1 * var(--gut-l)); max-width: none }
+  .tabs { display: flex; gap: 4px; position: sticky; top: calc(56px + env(safe-area-inset-top, 0px)); z-index: 2; background: var(--bg); margin: 0 calc(-1 * var(--gut-r)) 12px calc(-1 * var(--gut-l)); padding: 8px var(--gut-r) 8px var(--gut-l); border-bottom: 1px solid var(--line) }
+  .tabs button { flex: 1; min-height: 38px; border: 0; border-radius: 999px; background: transparent; font-weight: 600; font-size: .9rem; color: var(--muted) }
+  .tabs button[aria-current="true"] { background: var(--ink); color: var(--bg) }
+}
+
+/* Formulaires */
+.form { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px 14px; max-width: 860px }
+.field { display: flex; flex-direction: column; gap: 6px; grid-column: span 6; min-width: 0 }
+.field.s3 { grid-column: span 3 } .field.s2 { grid-column: span 2 }
+.field label, .field .lab { font-size: .82rem; font-weight: 600; color: var(--muted) }
+.field small { color: var(--muted); font-size: .8rem }
+.field input, .field select, .field textarea { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; width: 100%; min-width: 0; font-size: 16px; min-height: var(--tap) }
+.field textarea { min-height: 140px; resize: vertical; line-height: 1.5 }
+.photo-pick { display: flex; gap: 10px; align-items: center; flex-wrap: wrap }
+.photo-pick .prev { width: 96px; aspect-ratio: 4/3; border-radius: 10px; background: var(--sunk); overflow: hidden; flex: none }
+.photo-pick .prev img { width: 100%; height: 100%; object-fit: cover; display: block }
+.form-foot { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 24px; max-width: 860px }
+.form-foot .grow { flex: 1 }
+.drop { border: 1.5px dashed var(--line); border-radius: var(--r); padding: 24px 16px; text-align: center; color: var(--muted); display: flex; flex-direction: column; gap: 12px; align-items: center }
+.drop.over { border-color: var(--basil); background: color-mix(in srgb, var(--basil) 8%, transparent) }
+.drop .row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center }
+.thumbs { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center }
+.thumbs img { width: 84px; height: 84px; object-fit: cover; border-radius: 10px }
+.intro { max-width: 62ch; color: var(--muted); margin: 0 0 18px }
+.check { display: flex; gap: 10px; align-items: center; margin-top: 14px; min-height: var(--tap) }
+.check input { width: 22px; height: 22px; accent-color: var(--basil) }
+.msg { padding: 12px 14px; border-radius: 12px; background: var(--sunk); font-size: .92rem; margin: 14px 0; max-width: 860px }
+.msg.err { background: color-mix(in srgb, var(--danger) 12%, transparent); color: var(--danger) }
+.msg.ok { background: var(--basil-soft) }
+.spin { display: inline-block; width: 14px; height: 14px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: sp .8s linear infinite; vertical-align: -2px }
+@keyframes sp { to { transform: rotate(360deg) } }
+.cands { display: flex; flex-direction: column; gap: 10px; max-width: 860px; margin-top: 16px }
+.cand { display: flex; gap: 12px; align-items: flex-start; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; cursor: pointer }
+.cand input { width: 22px; height: 22px; accent-color: var(--basil); margin-top: 1px; flex: none }
+.cand .t { font-weight: 600 }
+.cand .d { color: var(--muted); font-size: .86rem }
+.cand .grow { flex: 1; min-width: 0 }
+.confirm { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; background: color-mix(in srgb, var(--danger) 10%, transparent); padding: 8px 12px; border-radius: var(--r); font-size: .92rem }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); z-index: 40; background: var(--ink); color: var(--bg); padding: 12px 18px; border-radius: 999px; font-size: .92rem; box-shadow: var(--shadow); max-width: calc(100vw - 32px); text-align: center }
+
+@media (max-width: 560px) {
+  .field.s3, .field.s2 { grid-column: span 3 }
+  .sheet .bar .btn:not(.icon):not(.back) { padding: 0 14px }
+}
+/* Mes notes */
+.mynotes { display: flex; flex-direction: column; gap: 10px; max-width: 68ch; margin-bottom: 16px }
+.note-add { display: flex; flex-direction: column; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 10px; transition: border-color .2s var(--ease), box-shadow .2s var(--ease) }
+.note-add:focus-within { border-color: var(--basil); box-shadow: 0 0 0 3px color-mix(in srgb, var(--basil) 18%, transparent) }
+.note-add textarea, .mynote textarea { border: 0; background: transparent; resize: none; font-size: 16px; line-height: 1.5; padding: 4px 6px; min-height: 48px; width: 100%; overflow: hidden; outline: none }
+.note-add .row, .mynote .row { display: flex; gap: 8px; justify-content: flex-end; align-items: center }
+.note-add .row small { color: var(--muted); font-size: .78rem; padding-left: 6px }
+.note-add .row .btn, .mynote .row .btn { min-height: 38px; padding: 0 14px; font-size: .9rem }
+.mynote { position: relative; background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--saffron); border-radius: 12px; padding: 10px 6px 8px 14px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 4px; overflow: hidden }
+.mynote .d { font-size: .74rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; align-self: center }
+.mynote .t { grid-column: 1 / -1; white-space: pre-wrap; overflow-wrap: anywhere; padding-right: 8px }
+.mynote .acts { display: flex; margin: -6px 0 -4px }
+.mynote .acts button { width: 36px; height: 36px; border: 0; background: transparent; border-radius: 50%; color: var(--muted); display: grid; place-items: center }
+.mynote .acts button:active, .mynote .acts button:hover { background: var(--sunk); color: var(--ink) }
+.mynote .acts svg { width: 17px; height: 17px }
+.mynote.editing { grid-template-columns: minmax(0, 1fr); border-left-color: var(--basil) }
+.mynote.editing textarea { grid-column: 1 / -1; margin-left: -6px }
+.sub-h { font-size: .74rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; margin: 18px 0 8px }
+.toast { display: flex; align-items: center; gap: 14px; transition: opacity .22s var(--ease), transform .22s var(--ease) }
+.toast[hidden] { display: none }
+.toast.out { opacity: 0; transform: translate(-50%, 12px) }
+.toast button { border: 0; background: transparent; color: var(--basil); font-weight: 700; padding: 0; min-height: 28px; white-space: nowrap }
+
+/* Micro-animations : courtes, douces, jamais bloquantes */
+:root { --ease: cubic-bezier(.2, .8, .2, 1); --spring: cubic-bezier(.34, 1.56, .64, 1) }
+.btn, .chip, .tabs button, .stepper button, .yield .reset, .menu button { transition: transform .12s var(--ease), background-color .2s var(--ease), color .2s var(--ease), border-color .2s var(--ease), opacity .2s var(--ease) }
+.btn:active:not([disabled]), .chip:active, .stepper button:active:not([disabled]) { transform: scale(.94) }
+.sheet { transition: opacity .2s var(--ease), transform .2s var(--ease) }
+.sheet.enter { animation: sheetIn .28s var(--ease) both }
+.sheet.leaving { opacity: 0; transform: translateY(14px); pointer-events: none }
+@keyframes sheetIn { from { opacity: 0; transform: translateY(18px) } }
+.sheet.enter .content .wrap > * { animation: rise .42s var(--ease) both; animation-delay: .06s }
+@keyframes rise { from { opacity: 0; transform: translateY(10px) } }
+.grid.stagger .card { animation: rise .4s var(--ease) both; animation-delay: calc(var(--i, 0) * 35ms) }
+.scrim { animation: fade .2s ease-out }
+@keyframes fade { from { opacity: 0 } }
+.toast:not(.out) { animation: toastIn .28s var(--spring) }
+@keyframes toastIn { from { opacity: 0; transform: translate(-50%, 16px) scale(.96) } }
+.q { transition: background-color .5s var(--ease), color .3s var(--ease) }
+.q.bump { animation: bump .45s var(--ease) }
+@keyframes bump { 30% { background: color-mix(in srgb, var(--saffron) 42%, transparent) } }
+.stepper output.tick { animation: tick .28s var(--ease) }
+@keyframes tick { from { opacity: .2; transform: translateY(var(--dy, 6px)) } }
+ul.ingr span { transition: color .25s var(--ease), text-decoration-color .25s var(--ease); text-decoration-line: line-through; text-decoration-color: transparent; text-decoration-thickness: 1.5px }
+ul.ingr li.done span { text-decoration-color: currentColor }
+ul.ingr li.just input:checked { animation: pop .3s var(--spring) }
+ol.steps li { transition: color .25s var(--ease), background-color .2s var(--ease) }
+ol.steps li.just.done::before { animation: pop .32s var(--spring) }
+@keyframes pop { 0% { transform: scale(.6) } 100% { transform: scale(1) } }
+.btn.icon.popping svg { animation: star .42s var(--spring) }
+@keyframes star { 40% { transform: scale(1.35) rotate(-8deg) } }
+.mynote.new { animation: noteIn .45s var(--ease) both }
+@keyframes noteIn { from { opacity: 0; transform: translateY(-6px) scale(.98); background: var(--saffron-soft) } }
+.mynote { transition: opacity .2s var(--ease), transform .2s var(--ease), max-height .25s var(--ease), margin .25s var(--ease), padding .25s var(--ease) }
+.mynote.gone { opacity: 0; transform: translateX(24px); max-height: 0 !important; padding-block: 0; margin-top: -10px; border-width: 0 }
+.yield .reset:not([hidden]), .yield .hint:not([hidden]) { animation: fade .25s ease-out }
+.thumb img { transition: opacity .35s var(--ease) }
+.thumb img.loading { opacity: 0 }
+/* En-tête : ombre douce dès qu'on fait défiler */
+header.top { transition: box-shadow .25s var(--ease) }
+header.top.scrolled { box-shadow: 0 8px 20px -14px rgba(20, 30, 24, .45) }
+/* Bouton + : pivote en × quand le menu est ouvert ; options en cascade */
+#addBtn svg { transition: transform .32s var(--spring) }
+#addBtn.open svg { transform: rotate(45deg) }
+.menu button { animation: rise .34s var(--ease) both; animation-delay: calc(var(--i, 0) * 45ms + 40ms) }
+/* Catégorie choisie : petit rebond */
+.chip.just { animation: chipIn .38s var(--spring) }
+@keyframes chipIn { 0% { transform: scale(.88) } 100% { transform: scale(1) } }
+.chip .n { transition: opacity .2s }
+/* Recherche : les fiches se recomposent en fondu */
+.grid.fade .card { animation: fadeUp .26s var(--ease) both }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(4px) scale(.99) } }
+.card { transition: transform .18s var(--ease), box-shadow .2s var(--ease) }
+.card:active { transform: scale(.965) }
+.card .thumb img { transition: opacity .35s var(--ease), transform .5s var(--ease) }
+@media (hover: hover) { .card:hover .thumb img { transform: scale(1.04) } }
+/* Ouverture d'une fiche : la photo de la vignette s'agrandit jusqu'à la fiche */
+::view-transition-group(hero) { animation-duration: .42s; animation-timing-function: cubic-bezier(.2, .8, .2, 1); z-index: 50 }
+::view-transition-old(hero), ::view-transition-new(hero) { height: 100%; width: 100%; object-fit: cover; overflow: hidden; animation-duration: .42s }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .3s }
+/* Onglets de la fiche : la pastille glisse d'un onglet à l'autre */
+.tabs .ind { position: absolute; left: 0; top: 8px; height: 38px; width: 0; border-radius: 999px; background: var(--ink); z-index: 0; pointer-events: none }
+.tabs.ready .ind { transition: transform .32s var(--ease), width .32s var(--ease) }
+@media (max-width: 760px) {
+  .tabs button { position: relative; z-index: 1; transition: color .25s var(--ease) }
+  .tabs button[aria-current="true"] { background: transparent !important; color: var(--bg) }
+}
+@media (min-width: 761px) { .tabs .ind { display: none } }
+/* Étapes : celle qu'on termine glisse légèrement */
+ol.steps li > span { transition: opacity .25s var(--ease), transform .25s var(--ease); display: block }
+ol.steps li.done > span { opacity: .55 }
+ol.steps li.just.done > span { animation: nudge .35s var(--ease) }
+@keyframes nudge { 40% { transform: translateX(4px) } }
+ul.ingr li span { transition: color .25s var(--ease), text-decoration-color .25s var(--ease), opacity .25s var(--ease) }
+ul.ingr li.done > label > span { opacity: .6 }
+/* Le titre de la fiche arrive juste après la photo */
+.sheet.enter h2.title { animation: rise .5s var(--ease) both; animation-delay: .1s }
+
+
+/* ---------- Fiche technique ---------- */
+.btn { border-radius: var(--r); font-weight: 500 }
+.btn.primary { font-weight: 600 }
+header.top { border-bottom-color: var(--line) }
+.logo { background: transparent; color: var(--acc); width: 30px; height: 30px }
+.logo svg { width: 26px; height: 26px }
+.brand h1 { font-weight: 600; font-size: 1.12rem; letter-spacing: -.02em }
+.brand .count { font-family: var(--f-mono); font-size: .7rem; text-transform: uppercase; letter-spacing: .04em }
+.search { background: transparent; border: 0; border-bottom: 1px solid var(--ink); border-radius: 0; padding-left: 0 }
+.search svg { color: var(--ink) }
+.chips { gap: 18px }
+.chip { border: 0; background: transparent; border-radius: 0; padding: 0 1px; min-height: 34px; font-size: .9rem; color: var(--muted) }
+.chip[aria-pressed="true"] { background: transparent; color: var(--ink); font-weight: 600; box-shadow: inset 0 -2px 0 var(--ink) }
+.chip .n { font-family: var(--f-mono); font-size: .72rem; opacity: .7 }
+/* Accueil : liste compacte */
+main .wrap { padding-top: 6px }
+.grid, .grid { grid-template-columns: minmax(0, 1fr); gap: 8px }
+@media (min-width: 761px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px } }
+.card { flex-direction: row; align-items: center; gap: 14px; background: var(--sunk); border: 0; border-radius: 10px; padding: 10px; color: var(--ink); transition: background-color .4s var(--ease), transform .18s var(--ease) }
+.card.toned { background: color-mix(in srgb, var(--pc) var(--tone-mix), var(--bg)) }
+@media (hover: hover) { .card:hover { transform: none; box-shadow: none } .card:hover h3 { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px } }
+.card:active { transform: scale(.985) }
+.thumb { width: 68px; height: 68px; aspect-ratio: auto; flex: none; border-radius: 6px; background: color-mix(in srgb, var(--ink) 8%, transparent) }
+.thumb .mono { font-size: 1.05rem; font-weight: 600; color: var(--muted); letter-spacing: 0 }
+.thumb .fav { top: 3px; right: 3px; width: 18px; height: 18px; font-size: .62rem; background: var(--bg); color: var(--acc) }
+.card .body, .card .body { padding: 0; gap: 3px }
+.card .cat { font-family: var(--f-mono); font-weight: 500; font-size: .66rem; letter-spacing: .06em; color: var(--acc) }
+.card h3, .card h3 { font-size: 1rem; font-weight: 600; letter-spacing: -.015em; line-height: 1.22 }
+.card .meta { font-family: var(--f-mono); font-size: .7rem; color: color-mix(in srgb, var(--ink) 68%, transparent); gap: 2px 10px }
+.card .cat { color: color-mix(in srgb, var(--acc) 85%, var(--ink)) }
+@media (hover: hover) { .card:hover .thumb img { transform: none } }
+/* Fiche */
+.hero-img { border-radius: 4px }
+.rhead .cat { font-family: var(--f-mono); font-weight: 500; font-size: .7rem; letter-spacing: .08em; color: var(--acc) }
+h2.title { font-weight: 700; letter-spacing: -.035em; line-height: 1.02; font-size: clamp(1.75rem, 6vw, 2.6rem); margin: 4px 0 16px }
+.facts { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 0; border-top: 1.5px solid var(--ink); border-bottom: 1px solid var(--line); margin-bottom: 16px }
+.fact { background: transparent; border: 0; border-radius: 0; padding: 8px 0 9px; gap: 1px }
+.fact small { text-transform: none; letter-spacing: 0; font-size: .74rem }
+.fact b { font-family: var(--f-mono); font-weight: 500; font-size: .98rem }
+.tag { font-family: var(--f-mono); font-size: .7rem; background: transparent; border: 1px solid var(--line); border-radius: 3px; padding: 2px 7px }
+.section-h { color: var(--ink); font-weight: 600; letter-spacing: .08em; font-size: .74rem }
+.yield { background: transparent; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 2px 0 12px; margin-bottom: 0 }
+.stepper { background: transparent; border-color: var(--ink); border-radius: var(--r) }
+.stepper button { color: var(--ink); border-radius: var(--r) }
+.stepper output { font-family: var(--f-mono); font-weight: 500 }
+.yield .reset { color: var(--acc); font-family: var(--f-mono); font-weight: 500 }
+ul.ingr li.grp { font-weight: 600; font-size: .95rem; padding-top: 18px }
+ul.ingr label { display: grid; grid-template-columns: 20px 6.4rem minmax(0, 1fr); gap: 10px; padding: 9px 0; min-height: 0 }
+ul.ingr input { width: 18px; height: 18px; accent-color: var(--ink); margin-top: 2px }
+ul.ingr .qc { font-family: var(--f-mono); font-size: .8rem; font-weight: 500; line-height: 1.55; overflow-wrap: anywhere }
+.q { background: transparent; color: var(--acc); padding: 0; font-weight: 600 }
+ol.steps li { grid-template-columns: 28px minmax(0, 1fr) }
+ol.steps li::before { content: counter(s, decimal-leading-zero); font-family: var(--f-mono); font-weight: 500; font-size: .82rem; color: var(--acc); line-height: 1.95; text-align: left }
+ol.steps li.done::before { content: "✓"; color: var(--muted) }
+.notes { background: transparent; border: 0; border-left: 2px solid var(--ink); border-radius: 0; padding: 4px 0 4px 14px }
+.mynote { background: var(--sunk); border: 0; border-left: 2px solid var(--acc); border-radius: 4px }
+.note-add { border-radius: var(--r) }
+.note-add:focus-within { border-color: var(--ink); box-shadow: none }
+.src a { color: var(--ink) }
+.toast { border-radius: var(--r) }
+.toast button { color: var(--acc) }
+.menu .ic { background: var(--sunk); color: var(--ink); border-radius: var(--r) }
+.field input, .field select, .field textarea, .cand { border-radius: var(--r) }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--ink); outline: none }
+@media (max-width: 760px) {
+  .hero-img { border-radius: 0 }
+  .tabs { gap: 18px; padding-block: 0; justify-content: flex-start }
+  .tabs button { flex: none; border-radius: 0; min-height: 44px; padding: 0 1px; font-size: .88rem }
+  .tabs button[aria-current="true"] { color: var(--ink) }
+  .tabs .ind { top: auto; bottom: -1px; height: 2px; border-radius: 0 }
+}
+@media (min-width: 720px) { .brand h1 { font-size: 1.35rem } }
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important }
+  *, *::before, *::after { animation: none !important; transition: none !important }
+}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><span class="logo" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><g class="steam"><path d="M11 9c-1.4-1.3 1.4-2.7 0-4"/><path d="M16 8.5c-1.6-1.5 1.6-3 0-4.5"/><path d="M21 9c-1.4-1.3 1.4-2.7 0-4"/></g><path d="M14.5 12.3h3"/><path d="M6 15h20"/><path d="M7.5 15v8.5A3.5 3.5 0 0 0 11 27h10a3.5 3.5 0 0 0 3.5-3.5V15"/><path d="M7.5 18H4.5M24.5 18h3"/></svg></span><h1>Carnet de cuisine</h1><span class="count" id="count"></span></div>
+    <button class="btn primary icon" id="addBtn" aria-haspopup="dialog" aria-label="Ajouter une recette">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="add-label">Ajouter</span>
+    </button>
+    <label class="search" for="q">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Recette, ingrédient, étiquette…" autocomplete="off" enterkeyhint="search">
+      <button class="clear" id="qClear" type="button" aria-label="Effacer la recherche" hidden>×</button>
+    </label>
+    <div class="chips" id="chips" role="toolbar" aria-label="Catégories"></div>
+  </div>
+</header>
+
+<main><div class="wrap">
+  <div class="status" id="status">Chargement des recettes…</div>
+  <div class="grid" id="grid"></div>
+  <div id="emptyBox"></div>
+</div></main>
+
+<div id="menuHost"></div>
+<div class="sheet" id="sheet" hidden></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
 <script>
-  // L'adresse enregistrée sur l'écran d'accueil porte ?ouvrir : au lancement, la page renvoie tout de suite au carnet.
-  try { history.replaceState(null, "", location.pathname + "?ouvrir"); } catch (e) {}
+(() => {
+"use strict";
+// ÉCHELLE-DÉBUT
+const FRAC = { "½": 1/2, "¼": 1/4, "¾": 3/4, "⅓": 1/3, "⅔": 2/3, "⅛": 1/8, "⅜": 3/8, "⅝": 5/8, "⅞": 7/8 };
+const FR = "½¼¾⅓⅔⅛⅜⅝⅞";
+const NUM = `(?:\\d+\\s+\\d+\\/\\d+|\\d+\\s*[${FR}]|\\d+\\/\\d+|\\d+(?:[.,]\\d+)?|[${FR}])`;
+const QTY_RE = new RegExp(`(${NUM})(?:(\\s*(?:à|-|–|ou)\\s*)(${NUM}))?`, "g");
+const NOT_WORD = "(?![a-zà-ÿ])";
+// Unités dont la quantité suit le nombre de portions
+const MEASURE = new RegExp(`^\\s*(?:kg|mg|g|gr|grammes?|ml|cl|dl|l|litres?|lb|lbs|oz|t\\.|tasses?|c\\.?\\s*(?:à|a)\\s*(?:soupe|thé|the|café|cafe|s|c)${NOT_WORD}\\.?|càc|càs|cs|cc|cuill[eè]r[ée]es?|c\\.|pincées?|gousses?|tiges?|feuilles?|bâtons?|boîtes?|tranches?|lanières?|quartiers?|brins?|bouquets?|sachets?|cubes?)${NOT_WORD}`, "i");
+const METRIC = new RegExp(`^\\s*(?:kg|mg|g|gr|grammes?|ml|cl|dl|l|litres?)${NOT_WORD}`, "i");
+// Ce qui ne change jamais avec les portions : tailles, températures, durées, pourcentages
+const FIXED = /^\s*(?:%|°|cm\b|mm\b|po\b|min|minutes?|h\b|heures?|jours?|semaines?|secondes?|x\b|×)/i;
+// Mots qui désignent les portions servies, dans les étapes (« répartir dans 4 bols »)
+const SERVING = new RegExp(`^\\s*(?:bols?|assiettes?|portions?|personnes?|parts?|verres?|boules?|pièces?|morceaux|carrés|naans?|pancakes?|crêpes?|ramequins?)${NOT_WORD}`, "i");
+const NUM_SRC = NUM;
+
+function parseNum(s) {
+  s = s.trim();
+  let m;
+  if ((m = s.match(/^(\d+)\s+(\d+)\/(\d+)$/))) return +m[1] + m[2] / m[3];
+  if ((m = s.match(new RegExp(`^(\\d+)\\s*([${FR}])$`)))) return +m[1] + FRAC[m[2]];
+  if ((m = s.match(/^(\d+)\/(\d+)$/))) return +m[2] ? m[1] / m[2] : null;
+  if (FRAC[s] != null) return FRAC[s];
+  if (/^\d+(?:[.,]\d+)?$/.test(s)) return parseFloat(s.replace(",", "."));
+  return null;
+}
+const dec = (x, step) => { const v = Math.round(x / step) * step; return (Math.round(v * 100) / 100).toString().replace(".", ","); };
+function fmtNum(x, metric) {
+  if (metric) {
+    if (x >= 100) return dec(x, 5);
+    if (x >= 10) return dec(x, 1);
+    if (x >= 1) return dec(x, .5);
+    return dec(x, .05);
+  }
+  if (x >= 10) return String(Math.round(x * 2) / 2).replace(/\.5$/, " ½");
+  const whole = Math.floor(x + 1e-9), rest = x - whole;
+  const grid = [[0, ""], [1/8, "⅛"], [1/4, "¼"], [1/3, "⅓"], [3/8, "⅜"], [1/2, "½"], [5/8, "⅝"], [2/3, "⅔"], [3/4, "¾"], [7/8, "⅞"], [1, ""]];
+  let best = grid[0];
+  for (const g of grid) if (Math.abs(rest - g[0]) < Math.abs(rest - best[0])) best = g;
+  if (Math.abs(rest - best[0]) > .07) return dec(x, .1);
+  const w = best[0] === 1 ? whole + 1 : whole;
+  return best[1] ? (w ? `${w} ${best[1]}` : best[1]) : String(w);
+}
+
+// Accord du mot qui suit la quantité (« 1 oignon » → « 2 oignons », « 2 filets » → « 1 filet »)
+const NO_AGREE = /^(?:kg|mg|g|gr|ml|cl|dl|l|lb|lbs|oz|t|c|càc|càs|cs|cc|env|et|ou|à|de|d|du|des|le|la|les|au|aux|en|pour|par|bien|un|une|très|peu)$/i;
+const INVARIANT = /(?:s|x|z)$/i;
+const SING_KEEP = /^(?:pois|jus|riz|noix|radis|ananas|maïs|mais|gros|frais|épais|anglais|français|chinois|bois|fois|cassis|tamis|panais|brebis|gras|ras|bas|dos|os|corps|temps|poids|prix|choix|croix|houx|lys|tournedos)$/i;
+const ADJ = /^(?:gros|grosse|grosses|petit|petite|petits|petites|grand|grande|grands|grandes|beau|belle|beaux|belles|moyen|moyenne|moyens|moyennes|bon|bonne|bons|bonnes|jeune|jeunes|vieux|vieille|vieilles|demi)$/i;
+function plural(w) {
+  if (/^chou-fleur$/i.test(w)) return w.replace(/chou-fleur/i, "choux-fleurs");
+  if (/^chou$/i.test(w)) return w + "x";
+  if (INVARIANT.test(w) || NO_AGREE.test(w)) return w;
+  if (/(?:eau|au|eu)$/i.test(w)) return w + "x";
+  return w + "s";
+}
+function singular(w) {
+  if (/^choux-fleurs$/i.test(w)) return w.replace(/choux-fleurs/i, "chou-fleur");
+  if (SING_KEEP.test(w) || NO_AGREE.test(w)) return w;
+  if (/(?:eaux|aux|eux)$/i.test(w)) return w.slice(0, -1);
+  if (/[^s]s$/i.test(w) && w.length > 3) return w.slice(0, -1);
+  return w;
+}
+// Adjectifs et participes qui suivent le nom et s'accordent avec lui
+const POST_ADJ = /^(?:vert|rouge|jaune|blanc|noir|fort|moyen|gros|petit|grand|mûr|dur|entier|grec|sec|cuit|cru|frit|épais|fin|long|court|rond|plat|mou|ferme|tendre|nature|bulgare)(?:e|s|es)?$/i;
+const PARTICIPLE = /^[a-zà-ÿ]{3,}(?:é|ée|és|ées|i|ie|is|ies|u|ue|us|ues|it|ite|its|ites)$/i;
+function agreeWord(w, toPl) {
+  if (PARTICIPLE.test(w) || /(?:e|es)$/.test(w) && POST_ADJ.test(w)) {
+    if (toPl) return /s$/i.test(w) ? w : w + "s";
+    return /s$/i.test(w) && !/^(?:gros|épais|frais)$/i.test(w) ? w.slice(0, -1) : w;
+  }
+  return toPl ? plural(w) : singular(w);
+}
+// Réécrit les mots qui suivent la quantité selon le nombre ; renvoie [texteModifié, longueurConsommée]
+function agree(rest, oldMax, newMax) {
+  const wasPl = oldMax >= 2, isPl = newMax >= 2;
+  if (wasPl === isPl) return null;
+  const W = "[A-Za-zÀ-ÿœŒ-]+";
+  let pos = 0, out = "";
+  const take = re => { const m = rest.slice(pos).match(re); if (m) pos += m[0].length; return m; };
+  let m = take(new RegExp(`^(\\s+)(${W})`));
+  if (!m || m[2].length < 2 || NO_AGREE.test(m[2])) return null;
+  out += m[1] + agreeWord(m[2], isPl);
+  if (ADJ.test(m[2])) { const n = take(new RegExp(`^(\\s+)(${W})`)); if (n) out += n[1] + agreeWord(n[2], isPl); }
+  // complément invariable : « pommes de terre », « gousse d'ail », « jaune d'œuf »
+  const c = take(new RegExp(`^(\\s+de\\s+${W}|\\s+d['’]${W})`, "i"));
+  if (c) out += c[0];
+  if (c && MEASURE.test(" " + m[2]) && !PIECE.test(" " + m[2])) return [out, pos];
+  for (let k = 0; k < 5; k++) {
+    const n = rest.slice(pos).match(new RegExp(`^(\\s+et\\s+(?:(?:finement|grossièrement|bien|très|légèrement)\\s+)?|,?\\s+(?:finement|grossièrement|bien|très|légèrement)\\s+|\\s+|,\\s+)(${W})`, "i"));
+    if (!n) break;
+    const isComma = /,|\bet\b|ment\s/.test(n[1]);
+    if (!(PARTICIPLE.test(n[2]) || (!isComma && POST_ADJ.test(n[2])))) break;
+    pos += n[0].length; out += n[1] + agreeWord(n[2], isPl);
+  }
+  return [out, pos];
+}
+
+// Changement d'unité quand la quantité devient trop petite ou trop grande
+const U = {
+  kg: /^\s*kg(?![a-zà-ÿ])/i, g: /^\s*(?:g|gr|grammes?)(?![a-zà-ÿ])/i,
+  l: /^\s*(?:l|litres?)(?![a-zà-ÿ'’])/i, ml: /^\s*ml(?![a-zà-ÿ])/i,
+  tasse: /^\s*(?:tasses?|t\.)(?![a-zà-ÿ])/i,
+  cs: /^\s*(?:c\.?\s*(?:à|a)\s*(?:soupe|s)(?![a-zà-ÿ])\.?|càs|cs(?![a-zà-ÿ]))/i,
+  cc: /^\s*(?:c\.?\s*(?:à|a)\s*(?:thé|the|café|cafe|c)(?![a-zà-ÿ])\.?|càc|cc(?![a-zà-ÿ]))/i,
+};
+function convertUnit(v, after) {
+  let m;
+  const res = (num, unit, len, metric) => ({ num: fmtNum(num, metric), unit, len });
+  if ((m = after.match(U.kg)) && v < 1) return res(v * 1000, " g", m[0].length, true);
+  if ((m = after.match(U.g)) && v >= 1000) return res(v / 1000, " kg", m[0].length, true);
+  if ((m = after.match(U.l)) && v < 1) return res(v * 1000, " ml", m[0].length, true);
+  if ((m = after.match(U.ml)) && v >= 1000) return res(v / 1000, " l", m[0].length, true);
+  if ((m = after.match(U.tasse)) && v < 0.25) return res(v * 16, " c. à soupe", m[0].length, false);
+  if ((m = after.match(U.cs)) && v < 1 && v * 3 >= 1/8) return res(v * 3, " c. à thé", m[0].length, false);
+  if ((m = after.match(U.cs)) && v * 3 < 1/8) return { num: "1", unit: " pincée", len: m[0].length };
+  if ((m = after.match(U.cc)) && v < 1/8) return { num: "1", unit: " pincée", len: m[0].length };
+  return null;
+}
+// Ce qui ne se coupe pas : œufs entiers, pincées, épices et gousses comptées à la pièce
+const PIECE = /^\s*(?:gousses?|tiges?|feuilles?|bâtons?|tranches?|lanières?|quartiers?|brins?|cubes?|sachets?|boîtes?|clous?|grains?|bouquets?)(?![a-zà-ÿ])/i;
+const PINCH = /^\s*(?:(?:grosses?|petites?)\s+)?pincées?(?![a-zà-ÿ])/i;
+function roundCount(x, orig, after) {
+  if (/^\s*(?:œufs?|oeufs?|jaunes?|blancs?)(?![a-zà-ÿ])/i.test(after) || PINCH.test(after)) return Math.max(1, Math.round(x));
+  if (orig >= 5) return Math.max(1, Math.round(x));
+  if (PIECE.test(after)) return Math.max(.5, Math.round(x * 2) / 2);
+  if (x >= 1) return Math.round(x * 2) / 2;
+  return x;
+}
+
+// ---------- Changement de système d'unités (opts.sys = "metric" | "imperial") ----------
+const B = "(?![a-zà-ÿ])";
+const U_MET = `(?:kg|g|gr|grammes?|ml|cl|dl|l(?![a-zà-ÿ'’])|litres?|cm|°\\s*C)`;
+const U_IMP = `(?:tasses?|t\\.|lbs?|livres?|oz|onces?|c\\.?\\s*(?:à|a)\\s*(?:soupe|thé|the|café|cafe|s|c)${B}\\.?|po|pouces?|°\\s*F)`;
+const QU = `(?:env\\.\\s*|environ\\s+)?${NUM}(?:\\s*(?:à|-|–)\\s*${NUM})?\\s*`;
+// Quand une ligne donne déjà les deux (« 250 ml (1 tasse) », « (5 ml / 1 c. à thé) »), on garde celle du système voulu
+function pickEquiv(text, sys) {
+  const keepMet = sys === "metric";
+  const sideA = `(${QU}${U_MET}${B}(?:\\s*\\+\\s*${QU}${U_MET}${B})*)`, sideB = `(${QU}${U_IMP}${B}(?:\\s*\\+\\s*${QU}${U_IMP}${B})*)`;
+  const pairs = [
+    [new RegExp(`${sideA}\\s*\\(\\s*${sideB}\\s*\\)`, "gi"), (all, m, i) => keepMet ? m : i.replace(/^(?:env\.\s*|environ\s+)/i, "")],
+    [new RegExp(`${sideB}\\s*\\(\\s*${sideA}\\s*\\)`, "gi"), (all, i, m) => keepMet ? m.replace(/^(?:env\.\s*|environ\s+)/i, "") : i],
+    [new RegExp(`${sideA}\\s*\\/\\s*${sideB}`, "gi"), (all, m, i) => keepMet ? m : i],
+    [new RegExp(`${sideB}\\s*\\/\\s*${sideA}`, "gi"), (all, i, m) => keepMet ? m : i],
+  ];
+  for (const [re, fn] of pairs) text = text.replace(re, fn);
+  // dimensions « 20 × 30 cm », « 8 x 12 po »
+  text = text.replace(new RegExp(`(${NUM})\\s*([x×])\\s*(${NUM})\\s*(cm|po|pouces)${B}`, "gi"), (all, a, x, b, u) => {
+    const toImp = sys === "imperial" && /^cm$/i.test(u), toMet = sys === "metric" && !/^cm$/i.test(u);
+    if (!toImp && !toMet) return all;
+    const c = v => toImp ? fmtNum(roundTo(parseNum(v) / 2.54, .5), false) : fmtNum(Math.round(parseNum(v) * 2.54), true);
+    return `${c(a)} × ${c(b)} ${toImp ? "po" : "cm"}`;
+  });
+  return text;
+}
+const CONV = {
+  metric: [
+    [new RegExp(`^\\s*(?:tasses?|t\\.)${B}`, "i"), "vol", 250],
+    [new RegExp(`^\\s*c\\.?\\s*(?:à|a)\\s*(?:soupe|s)${B}\\.?`, "i"), "vol", 15],
+    [new RegExp(`^\\s*c\\.?\\s*(?:à|a)\\s*(?:thé|the|café|cafe|c)${B}\\.?`, "i"), "vol", 5],
+    [new RegExp(`^\\s*(?:lbs?|livres?)${B}`, "i"), "mass", 453.6],
+    [new RegExp(`^\\s*(?:oz|onces?)${B}`, "i"), "mass", 28.35],
+    [new RegExp(`^\\s*(?:po|pouces?)${B}`, "i"), "len", 2.54],
+    [/^\s*°\s*F(?![a-zà-ÿ])/i, "tempF", 1],
+  ],
+  imperial: [
+    [new RegExp(`^\\s*kg${B}`, "i"), "mass", 1000],
+    [new RegExp(`^\\s*(?:g|gr|grammes?)${B}`, "i"), "mass", 1],
+    [new RegExp(`^\\s*ml${B}`, "i"), "vol", 1],
+    [new RegExp(`^\\s*cl${B}`, "i"), "vol", 10],
+    [new RegExp(`^\\s*dl${B}`, "i"), "vol", 100],
+    [/^\s*(?:l|litres?)(?![a-zà-ÿ'’])/i, "vol", 1000],
+    [new RegExp(`^\\s*cm${B}`, "i"), "len", 1],
+    [/^\s*°\s*C(?![a-zà-ÿ])/i, "tempC", 1],
+  ],
+};
+const roundTo = (x, step) => Math.round(x / step) * step;
+// Tasses -> ml selon l'usage canadien (¼ tasse = 60 ml, ¾ tasse = 175 ml…)
+function cupsToMl(c) {
+  const w = Math.floor(c + 1e-9), r = c - w;
+  const map = [[0, 0], [1/8, 30], [1/4, 60], [1/3, 75], [1/2, 125], [2/3, 150], [3/4, 175], [1, 250]];
+  const hit = map.find(([fr]) => Math.abs(r - fr) < .02);
+  return w * 250 + (hit ? hit[1] : r * 250);
+}
+// Convertit une quantité (ou une fourchette) vers le système voulu ; renvoie {t, len} ou null
+function toSystem(a, b, after, sys) {
+  for (const [re, kind, k] of CONV[sys] || []) {
+    const mm = after.match(re); if (!mm) continue;
+    const vals = [a, b].filter(v => v != null).map(v => kind === "vol" && k === 250 && sys === "metric" ? cupsToMl(v) : v * k);
+    const top = Math.max(...vals);
+    let unit, conv, metric = sys === "metric";
+    if (kind === "tempF") { unit = " °C"; conv = v => roundTo((v - 32) * 5 / 9, 10); }
+    else if (kind === "tempC") { unit = " °F"; conv = v => roundTo(v * 9 / 5 + 32, 25); }
+    else if (metric) {
+      if (kind === "vol") { if (top >= 1000) { unit = " l"; conv = v => v / 1000; } else { unit = " ml"; conv = v => v < 10 ? Math.max(.5, roundTo(v, .5)) : v; } }
+      else if (kind === "mass") { if (top >= 1000) { unit = " kg"; conv = v => v / 1000; } else { unit = " g"; conv = v => v; } }
+      else { unit = " cm"; conv = v => v; }
+    } else {
+      if (kind === "vol") {
+        if (top >= 60) { unit = "tasse"; conv = v => v / 250; } else if (top >= 15) { unit = " c. à soupe"; conv = v => v / 15; } else { unit = " c. à thé"; conv = v => v / 5; }
+      } else if (kind === "mass") { if (top >= 450) { unit = " lb"; conv = v => roundTo(v / 453.6, .25); } else { unit = " oz"; conv = v => { const o = v / 28.35; return Math.max(.25, roundTo(o, o >= 4 ? .5 : .25)); }; } }
+      else { unit = " po"; conv = v => { const i = v / 2.54; return Math.max(.25, roundTo(i, i >= 4 ? .5 : .25)); }; }
+    }
+    const nums = vals.map(v => conv(v));
+    const f = x => kind.startsWith("temp") ? String(x) : fmtNum(x, metric);
+    if (unit === "tasse") unit = Math.max(...nums) >= 2 ? " tasses" : " tasse";
+    return { t: nums.map(f).join(" à ") + unit, len: mm[0].length };
+  }
+  return null;
+}
+
+// Découpe un texte en morceaux [{t, s}] où s=true marque une quantité recalculée.
+// opts.leading : la quantité en tête de ligne est celle de l'ingrédient (lignes d'ingrédients)
+// opts.servings : nombre de portions d'origine (pour « répartir dans 4 bols »)
+function scaleText(text, f, opts = {}) {
+  text = String(text ?? "");
+  if (!f) f = 1;
+  const changing = Math.abs(f - 1) > 1e-9, sys = opts.sys || null;
+  if (!changing && !sys) return [{ t: text, s: false }];
+  if (sys) text = pickEquiv(text, sys);
+  const out = [];
+  let last = 0, m;
+  // « Une grosse pincée de sel », « Un oignon » en tête de ligne
+  if (opts.leading && changing) {
+    const w = text.match(/^(\s*)(une?|un)(?=\s)(?!\s+peu\b)/i);
+    if (w) {
+      const nv = fmtNum(roundCount(f, 1, text.slice(w[0].length)), false);
+      out.push({ t: w[1], s: false }, { t: nv, s: true });
+      last = w[0].length;
+      const ag = agree(text.slice(last), 1, roundCount(f, 1, text.slice(last)));
+      if (ag) { out.push({ t: ag[0], s: false }); last += ag[1]; }
+    }
+  }
+  const lead = opts.leading && last === 0 ? text.match(/^\s*/)[0].length : -1;
+  const re = new RegExp(QTY_RE.source, "g");
+  re.lastIndex = last;
+  while ((m = re.exec(text))) {
+    const start = m.index, end = start + m[0].length;
+    const before = text.slice(0, start), after = text.slice(end);
+    // nombre collé à une lettre, un chiffre ou une barre (T110, 50/50) : ignoré
+    if (/[A-Za-zÀ-ÿ\d\/]$/.test(before)) continue;
+    if (/^[\/\d]/.test(after)) continue;
+    let scale = false, agreeIt = false;
+    if (start === lead || (opts.leading && /\bou\s+$/i.test(before))) { scale = !/^\s*(?:%|°)/.test(after); agreeIt = true; }
+    else if (FIXED.test(after)) scale = false;
+    else if (MEASURE.test(after)) {
+      // « boîte de 796 ml », « poulet de 1,5 kg », « boules d'environ 65 g » : taille d'une unité
+      const sizeOf = /\b(?:de|d['’])\s*(?:environ\s+|env\.\s*)?$/i.test(before);
+      // « (28 oz) » juste après une taille d'unité : même chose
+      const sizeParen = new RegExp(`\\b(?:de|d['’])\\s*(?:environ\\s+)?${NUM_SRC}\\s*[A-Za-zÀ-ÿ.]+\\s*\\(\\s*(?:env\\.\\s*|environ\\s+)?$`, "i").test(before);
+      // « 60 g par personne » : déjà rapporté à une portion
+      const perHead = /^\s*\S+\s*(?:\S+\s+)?(?:par|pour)\s+(?:personne|portion|pers\b|pièce|naan|boule)/i.test(after);
+      scale = !sizeOf && !sizeParen && !perHead;
+      agreeIt = !METRIC.test(after);
+    } else if (opts.servings && SERVING.test(after)) {
+      scale = parseNum(m[1]) === opts.servings;
+      agreeIt = true;
+    }
+    const a = parseNum(m[1]), b = m[3] ? parseNum(m[3]) : null;
+    if (a == null) continue;
+    // changement de système : la quantité (recalculée ou non) passe dans l'autre unité
+    const sysConv = sys && (b != null || !m[3]) ? toSystem(scale ? a * f : a, b == null ? null : (scale ? b * f : b), after, sys) : null;
+    if (sysConv) {
+      if (start > last) out.push({ t: text.slice(last, start), s: false });
+      out.push({ t: sysConv.t, s: true });
+      last = end + sysConv.len; re.lastIndex = last;
+      continue;
+    }
+    if (!scale || !changing) continue;
+    const metric = METRIC.test(after);
+    const unitless = !MEASURE.test(after) || PIECE.test(after) || PINCH.test(after);
+    const sc = x => unitless ? roundCount(x * f, x, after) : x * f;
+    if (start > last) out.push({ t: text.slice(last, start), s: false });
+    const conv = !m[3] ? convertUnit(a * f, after) : null;
+    if (conv) {
+      out.push({ t: conv.num + conv.unit, s: true });
+      last = end + conv.len; re.lastIndex = last;
+      continue;
+    }
+    let t = fmtNum(sc(a), metric);
+    if (m[3]) t += m[2] + (b != null ? fmtNum(sc(b), metric) : m[3]);
+    out.push({ t, s: true });
+    last = end;
+    if (agreeIt) {
+      const oldMax = b ?? a, newMax = parseNum(t.split(m[2] || "\u0000").pop().replace(",", ".")) ?? (b ?? a) * f;
+      const ag = agree(after, oldMax, newMax);
+      if (ag) { out.push({ t: ag[0], s: false }); last = end + ag[1]; re.lastIndex = last; }
+    }
+  }
+  if (last < text.length) out.push({ t: text.slice(last), s: false });
+  return out;
+}
+// ÉCHELLE-FIN
+
+const catKey = c => CATS.includes(c) ? norm(c).replace(/\s+/g, "-") : (c && !/^(Toutes|★)/.test(c) ? "autres" : null);
+const CATS = ["Entrées", "Plats", "Accompagnements", "Soupes", "Salades", "Desserts", "Pâtisserie", "Petit-déjeuner", "Sauces", "Boissons", "Autres"];
+const ICONS = {
+  pen: '<path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m14 6 4 4"/>',
+  trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+  link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  camera: '<path d="M4 8h3l2-3h6l2 3h3v11H4Z"/><circle cx="12" cy="13" r="3.5"/>',
+  notes: '<path d="M6 3h9l4 4v14H6Z"/><path d="M9 11h7M9 15h7M9 7h3"/>',
+  back: '<path d="m15 5-7 7 7 7"/>',
+  star: '<path d="m12 3 2.7 5.6 6.1.8-4.5 4.3 1.1 6.1L12 17l-5.4 2.8 1.1-6.1L3.2 9.4l6.1-.8Z"/>',
+  clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+};
+const svg = (name, fill) => { const s = document.createElementNS("http://www.w3.org/2000/svg", "svg"); s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("fill", fill ? "currentColor" : "none"); s.setAttribute("stroke", "currentColor"); s.setAttribute("stroke-width", "2"); s.setAttribute("stroke-linecap", "round"); s.setAttribute("stroke-linejoin", "round"); s.setAttribute("aria-hidden", "true"); s.innerHTML = ICONS[name]; return s; };
+const ADD_OPTS = [
+  ["notes", "notes", "Depuis mes notes", "Coller du texte : une ou plusieurs recettes"],
+  ["photo", "camera", "Depuis une photo", "Livre, fiche manuscrite, capture d'écran"],
+  ["lien", "link", "Depuis un lien", "L'adresse d'une recette en ligne"],
+  ["saisir", "pen", "Saisir à la main", "Formulaire vide"],
+];
+
+const $ = (s, r = document) => r.querySelector(s);
+function el(tag, attrs, ...kids) {
+  const n = document.createElement(tag);
+  if (attrs) for (const [k, v] of Object.entries(attrs)) {
+    if (v == null || v === false) continue;
+    if (k === "class") n.className = v;
+    else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+    else if (k === "text") n.textContent = v;
+    else n.setAttribute(k, v === true ? "" : v);
+  }
+  for (const k of kids.flat(Infinity)) if (k != null && k !== false) n.append(k.nodeType ? k : String(k));
+  return n;
+}
+const norm = s => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const safeUrl = u => /^https?:\/\//i.test(String(u || "")) ? String(u) : null;
+const fmtMin = m => { m = Number(m); if (!m) return ""; const h = Math.floor(m / 60), r = m % 60; return h ? (r ? `${h} h ${r}` : `${h} h`) : `${m} min`; };
+// Hors de claude.ai (app Firebase), window.photoUrl fournit l'adresse de la photo
+const blobUrl = id => window.photoUrl ? window.photoUrl(id) : "/_blob/" + encodeURIComponent(id);
+const IA = window.__IA || "Claude";
+// Photos d'une recette : la principale, puis celles des notes (les plus récentes d'abord)
+function gallery(r) {
+  const g = r.photoId ? [{ id: r.photoId }] : [];
+  const notes = (r.mesNotes || []).slice().sort((a, b) => String(b.le || "").localeCompare(String(a.le || "")));
+  for (const n of notes) for (const p of (n.photos || [])) g.push({ id: p, le: n.le });
+  return g;
+}
+const imgUrl = r => { const g = gallery(r)[0]; return g ? blobUrl(g.id) : null; };
+function buildGallery(gal, st) {
+  const track = el("div", { class: "gal", tabindex: "0", role: "region", "aria-label": `Photos du plat (${gal.length})` });
+  gal.forEach((p, i) => track.append(el("img", { src: blobUrl(p.id), alt: "", decoding: "async", loading: i > 1 ? "lazy" : null, draggable: "false" })));
+  const box = el("div", { class: "hero-img" + (gal.length > 1 ? " multi" : "") }, track);
+  const go = (i, smooth = true) => { i = Math.max(0, Math.min(gal.length - 1, i)); track.scrollTo({ left: i * track.clientWidth, behavior: smooth && !reduceMotion() ? "smooth" : "auto" }); };
+  box.goTo = id => { const i = gal.findIndex(p => p.id === id); if (i >= 0) go(i); };
+  let start = Math.min(st.gal || 0, gal.length - 1);
+  if (st.galTo) { const i = gal.findIndex(p => p.id === st.galTo); if (i >= 0) start = i; st.galTo = null; }
+  let upd = () => {};
+  requestAnimationFrame(() => { track.scrollLeft = start * track.clientWidth; upd(); });
+  if (gal.length < 2) return box;
+  const dots = el("div", { class: "dots", "aria-hidden": "true" }, gal.map(() => el("i")));
+  const cap = el("div", { class: "gal-cap", hidden: true });
+  const prev = el("button", { class: "gal-nav prev", type: "button", "aria-label": "Photo précédente", onclick: () => go(st.gal - 1) }, svg("back"));
+  const next = el("button", { class: "gal-nav next", type: "button", "aria-label": "Photo suivante", onclick: () => go(st.gal + 1) }, svg("back"));
+  box.append(dots, cap, prev, next);
+  upd = () => {
+    const i = Math.round(track.scrollLeft / Math.max(1, track.clientWidth));
+    if (i === st.gal && dots.querySelector(".on")) return;
+    st.gal = i;
+    [...dots.children].forEach((d, k) => d.classList.toggle("on", k === i));
+    const p = gal[i], t = p?.le ? "Ma photo · " + fmtDate(p.le) : "";
+    if (cap.textContent !== t) { cap.textContent = t; cap.hidden = !t; cap.style.animation = "none"; void cap.offsetWidth; cap.style.animation = ""; }
+    prev.disabled = i === 0; next.disabled = i === gal.length - 1;
+  };
+  let raf = 0;
+  track.addEventListener("scroll", () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(upd); }, { passive: true });
+  track.addEventListener("keydown", e => { if (e.key === "ArrowRight") { e.preventDefault(); go(st.gal + 1); } if (e.key === "ArrowLeft") { e.preventDefault(); go(st.gal - 1); } });
+  return box;
+}
+// Montre une photo dans la galerie en haut de la fiche
+function showPhoto(id) {
+  sheet.scrollTo({ top: 0, behavior: reduceMotion() ? "auto" : "smooth" });
+  setTimeout(() => sheet.querySelector(".hero-img")?.goTo?.(id), reduceMotion() ? 0 : 250);
+}
+function pickPhotos(onFiles) {
+  const inp = el("input", { type: "file", accept: "image/*", multiple: true, hidden: true });
+  inp.addEventListener("change", () => { const fs = [...inp.files]; inp.remove(); if (fs.length) onFiles(fs); });
+  document.body.append(inp); inp.click();
+}
+const photoStrip = (items, onRemove) => el("div", { class: "nphotos" }, items.map((it, i) =>
+  el("div", { class: "nphoto" + (it.fresh ? " new" : "") }, el("img", { src: it.url, alt: "" }),
+    el("button", { class: "x", type: "button", "aria-label": "Retirer la photo", onclick: () => onRemove(i) }, "×"))));
+async function uploadAll(blobs) { const ids = []; for (const b of blobs) ids.push((await assets.upload(await shrink(b))).id); return ids; }
+const isGroup = l => /^#+\s*/.test(l) || /:\s*$/.test(l);
+const unitOf = r => (r.portionsUnite || "").trim() || "portions";
+const yieldText = (n, unit) => `${n} ${n <= 1 ? singular(unit) : unit}`;
+// Quantités avec une unité convertible : soulignées en pointillé, un toucher montre l'équivalent dans l'autre système
+const QA_RE = new RegExp(`(^|[^A-Za-zÀ-ÿ\\d/])(${NUM}(?:\\s*(?:à|-|–)\\s*${NUM})?\\s*(?:${U_MET}|${U_IMP})${B})`, "gi");
+function segs(parts) {
+  const full = parts.map(p => p.t).join("");
+  const hl = []; let pos = 0;
+  for (const p of parts) { if (p.s) hl.push([pos, pos + p.t.length]); pos += p.t.length; }
+  const qa = []; let m; QA_RE.lastIndex = 0;
+  while ((m = QA_RE.exec(full))) { const a = m.index + m[1].length; qa.push([a, a + m[2].length]); if (QA_RE.lastIndex === m.index) QA_RE.lastIndex++; }
+  const cuts = [...new Set([0, full.length, ...hl.flat(), ...qa.flat()])].sort((x, y) => x - y);
+  const nodes = []; let wrap = null;
+  for (let i = 0; i < cuts.length - 1; i++) {
+    const x = cuts[i], y = cuts[i + 1], t = full.slice(x, y);
+    const isHl = hl.some(([a, b]) => x >= a && y <= b);
+    const q = qa.find(([a, b]) => x >= a && y <= b);
+    const node = isHl ? el("span", { class: "q", text: t }) : document.createTextNode(t);
+    if (q) {
+      if (!wrap || wrap.q !== q) { wrap = el("span", { class: "qa", role: "button", tabindex: "0", "data-qty": full.slice(q[0], q[1]).trim() }); wrap.q = q; nodes.push(wrap); }
+      wrap.append(node);
+    } else { wrap = null; nodes.push(node); }
+  }
+  return nodes;
+}
+// Colonne de quantités : « 500 g » | « crevettes fraîches » ; une quantité touchable n'est jamais coupée
+const LEAD_RE = new RegExp(`^\\s*${NUM}(?:\\s*(?:à|-|–)\\s*${NUM})?(?:\\s*(?:kg|mg|g|gr|ml|cl|dl|l|lbs?|oz)(?![A-Za-zÀ-ÿ'’]))?\\s*`, "i");
+function ingCols(nodes) {
+  const full = nodes.map(n => n.textContent).join("");
+  const m = full.match(LEAD_RE);
+  if (!m) return [el("span", { class: "qc" }), el("span", { class: "it" }, nodes)];
+  let cut = m[0].length, pos = 0;
+  for (const n of nodes) { const L = n.textContent.length; if (n.classList?.contains("qa") && pos < cut && pos + L > cut) cut = pos + L; pos += L; }
+  const a = [], b = []; pos = 0;
+  for (const n of nodes) {
+    const L = n.textContent.length;
+    if (pos + L <= cut) a.push(n);
+    else if (pos >= cut) b.push(n);
+    else {
+      const k = cut - pos, t = n.textContent;
+      const x = n.nodeType === 3 ? document.createTextNode(t.slice(0, k)) : Object.assign(n.cloneNode(false), { textContent: t.slice(0, k) });
+      const y = n.nodeType === 3 ? document.createTextNode(t.slice(k)) : Object.assign(n.cloneNode(false), { textContent: t.slice(k) });
+      a.push(x); b.push(y);
+    }
+    pos += L;
+  }
+  const first = b[0];
+  if (first && first.nodeType === 3) first.textContent = first.textContent.replace(/^\s*(?:de\s+|d['’])/i, "");
+  const qc = el("span", { class: "qc" }, a);
+  // dans la colonne seulement : « c. à soupe » -> « c. à s. », « c. à thé » -> « c. à t. » (la quantité touchée garde son texte complet)
+  const tw = document.createTreeWalker(qc, NodeFilter.SHOW_TEXT);
+  for (let n; (n = tw.nextNode());) n.textContent = n.textContent.replace(/c\.?\s*(?:à|a)\s*soupe/gi, "c. à s.").replace(/c\.?\s*(?:à|a)\s*(?:thé|the|café|cafe)/gi, "c. à t.");
+  return [qc, el("span", { class: "it" }, b)];
+}
+// Équivalents d'une quantité (« 250 ml » -> « 1 tasse »)
+function altUnits(txt) {
+  const m = String(txt).match(new RegExp(`^(${NUM})(?:\\s*(?:à|-|–)\\s*(${NUM}))?(\\s*.*)$`, "i"));
+  if (!m) return [];
+  const a = parseNum(m[1]), b = m[2] ? parseNum(m[2]) : null;
+  if (a == null) return [];
+  const out = [];
+  for (const sys of ["metric", "imperial"]) {
+    const r = toSystem(a, b, " " + m[3].trim(), sys);
+    if (r && r.t.replace(/\s+/g, " ") !== String(txt).replace(/\s+/g, " ") && !out.includes(r.t)) out.push(r.t);
+  }
+  return out;
+}
+let pop = null;
+function closePop() { if (!pop) return; const p = pop; pop = null; p.classList.add("out"); setTimeout(() => p.remove(), reduceMotion() ? 0 : 160); document.querySelector(".qa.on")?.classList.remove("on"); }
+function showAlt(q) {
+  const same = q.classList.contains("on");
+  closePop(); if (same) return;
+  const alts = altUnits(q.dataset.qty);
+  if (!alts.length) return;
+  q.classList.add("on");
+  pop = el("div", { class: "qpop", role: "status" }, alts.map(t => el("div", null, el("span", { class: "eq", text: "≈" }), " " + t)));
+  document.body.append(pop);
+  const r = q.getBoundingClientRect(), w = pop.offsetWidth, h = pop.offsetHeight;
+  const left = Math.max(8, Math.min(innerWidth - w - 8, r.left + r.width / 2 - w / 2));
+  const above = r.top - h - 10 > 70;
+  pop.style.left = left + "px";
+  pop.style.top = (above ? r.top - h - 8 : r.bottom + 8) + "px";
+  pop.style.setProperty("--ax", (r.left + r.width / 2 - left) + "px");
+  pop.classList.add(above ? "above" : "below");
+}
+document.addEventListener("click", e => {
+  const q = e.target.closest?.(".qa");
+  if (!q) { if (pop && !e.target.closest(".qpop")) closePop(); return; }
+  e.preventDefault(); e.stopPropagation();
+  showAlt(q);
+}, true);
+document.addEventListener("keydown", e => { const q = e.target.closest?.(".qa"); if (q && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); e.stopPropagation(); showAlt(q); } else if (e.key === "Escape" && pop) { e.stopPropagation(); closePop(); } }, true);
+addEventListener("scroll", closePop, { passive: true, capture: true });
+addEventListener("resize", closePop);
+
+// ---------- État ----------
+let db = null, assets = null, sample = null, mcp = null, canWrite = true;
+let recettes = [];
+let loaded = false;
+let filtre = { q: "", cat: "Toutes" };
+let current = null;          // vue ouverte : {hash, kind, id}
+let wakeLock = null;
+let waitFor = null;          // recette tout juste enregistrée, pas encore revenue du stockage
+const viewState = {};
+const unitSys = "";   // les quantités restent dans les unités de la recette ; l'équivalent s'affiche au toucher        // portions choisies et cases cochées, par recette, le temps de la visite
+
+// ---------- Toast ----------
+let toastT;
+function toast(t, action) {
+  const n = $("#toast");
+  n.replaceChildren(el("span", { text: t }));
+  if (action) n.append(el("button", { text: action.label, onclick: () => { hideToast(); action.run(); } }));
+  n.classList.remove("out"); n.hidden = false;
+  void n.offsetWidth;  // relance l'animation d'entrée
+  clearTimeout(toastT); toastT = setTimeout(hideToast, action ? 5500 : 3200);
+}
+function hideToast() {
+  const n = $("#toast"); clearTimeout(toastT);
+  if (n.hidden) return;
+  n.classList.add("out");
+  toastT = setTimeout(() => { n.hidden = true; n.classList.remove("out"); }, reduceMotion() ? 0 : 220);
+}
+const reduceMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// ---------- Liste ----------
+function matches(r) {
+  if (filtre.cat === "★ Favoris" ? !r.favori : (filtre.cat !== "Toutes" && r.categorie !== filtre.cat)) return false;
+  if (!filtre.q) return true;
+  const hay = norm([r.titre, r.categorie, (r.etiquettes || []).join(" "), (r.ingredients || []).join(" "), r.notes, (r.mesNotes || []).map(n => n.texte).join(" "), r.source].join(" "));
+  return norm(filtre.q).split(/\s+/).filter(Boolean).every(w => hay.includes(w));
+}
+function renderChips() {
+  const counts = {};
+  for (const r of recettes) counts[r.categorie || "Autres"] = (counts[r.categorie || "Autres"] || 0) + 1;
+  const nFav = recettes.filter(r => r.favori).length;
+  const list = [["Toutes", recettes.length]];
+  if (nFav) list.push(["★ Favoris", nFav]);
+  for (const c of CATS) if (counts[c]) list.push([c, counts[c]]);
+  const box = $("#chips"); box.replaceChildren();
+  box.hidden = !recettes.length;
+  for (const [c, n] of list) { const b = el("button", { class: "chip" + (justChip === c ? " just" : ""), "data-cat": catKey(c), "aria-pressed": String(filtre.cat === c), onclick: () => { if (filtre.cat !== c) { stagger = true; justChip = c; } filtre.cat = c; renderAll(); box.querySelector(".chip.just, .chip[aria-pressed=true]")?.scrollIntoView({ inline: "nearest", block: "nearest", behavior: reduceMotion() ? "auto" : "smooth" }); } }, c, el("span", { class: "n", text: n })); box.append(b); }
+  justChip = null;
+}
+// Teinte de fond d'une ligne : couleur dominante de sa photo (moyenne pondérée par la saturation), gardée en cache
+function toneCache(u, v) {
+  try { if (v) localStorage.setItem("teinte:" + u, v); else return localStorage.getItem("teinte:" + u); } catch { return null; }
+}
+function toneOf(img, u) {
+  try {
+    const c = document.createElement("canvas"); c.width = c.height = 24;
+    const x = c.getContext("2d", { willReadFrequently: true }); x.drawImage(img, 0, 0, 24, 24);
+    const d = x.getImageData(0, 0, 24, 24).data; let R = 0, G = 0, B = 0, W = 0;
+    for (let i = 0; i < d.length; i += 4) {
+      const r = d[i], g = d[i + 1], b = d[i + 2], mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2;
+      if (l < 28 || l > 232) continue;
+      const w = 1 + (mx - mn) / 24; R += r * w; G += g * w; B += b * w; W += w;
+    }
+    if (!W) return null;
+    let [r, g, b] = [R / W / 255, G / W / 255, B / W / 255];
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), dl = mx - mn;
+    let h = 0; if (dl) h = mx === r ? ((g - b) / dl) % 6 : mx === g ? (b - r) / dl + 2 : (r - g) / dl + 4;
+    h = Math.round((h * 60 + 360) % 360);
+    const l = (mx + mn) / 2, sat = dl ? dl / (1 - Math.abs(2 * l - 1)) : 0;
+    const v = `hsl(${h} ${Math.round(Math.min(82, Math.max(40, sat * 100 * 1.45)))}% 48%)`;
+    toneCache(u, v); return v;
+  } catch { return null; }
+}
+function setTone(cardEl, v) { if (cardEl && v) { cardEl.style.setProperty("--pc", v); cardEl.classList.add("toned"); } }
+function card(r) {
+  const u = imgUrl(r);
+  const meta = [];
+  if (r.tempsPrep) meta.push(el("span", { class: "m-prep", text: "Prép. " + (r.prepEstime ? "≈ " : "") + fmtMin(r.tempsPrep) }));
+  if (r.tempsCuisson) meta.push(el("span", { text: "Cuisson " + fmtMin(r.tempsCuisson) }));
+  if (r.portions) meta.push(el("span", { text: yieldText(r.portions, unitOf(r)) }));
+  const nN = (r.mesNotes || []).length;
+  if (nN) meta.push(el("span", { text: `✎ ${nN} note${nN > 1 ? "s" : ""}` }));
+  // sans photo : une teinte tirée au hasard, mais fixe pour chaque recette (dérivée de son identifiant)
+  const hue = [...String(r.id || r.titre || "")].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7) % 360;
+  const tk = gallery(r)[0]?.id || u;
+  const tone = u ? toneCache(tk) : `hsl(${hue} 58% 48%)`;
+  return el("button", { class: "card" + (tone ? " toned" : ""), style: tone ? `--pc: ${tone}` : null, "data-cat": catKey(r.categorie || "Autres"), onclick: e => openFromCard(r, e.currentTarget) },
+    el("div", { class: "thumb" },
+      u ? el("img", { src: u, alt: "", loading: "lazy", decoding: "async", class: "loading", onload: e => { const im = e.currentTarget; im.classList.remove("loading"); if (im.naturalWidth > 2 && !toneCache(tk)) setTone(im.closest(".card"), toneOf(im, tk)); }, onerror: e => e.currentTarget.classList.remove("loading") }) : el("div", { class: "mono", text: (r.titre || "?").trim().slice(0, 2) }),
+      r.favori ? el("span", { class: "fav", "aria-label": "Favori", text: "★" }) : null),
+    el("div", { class: "body" }, el("span", { class: "cat", text: r.categorie || "Autres" }), el("h3", { text: r.titre || "Sans titre" }), el("div", { class: "meta" }, meta)));
+}
+let vtOpening = false;
+function openFromCard(r, cardEl) {
+  const thumb = cardEl.querySelector(".thumb img");
+  if (!document.startViewTransition || reduceMotion() || !thumb || location.hash) { go("r-" + r.id); return; }
+  cardEl.querySelector(".thumb").style.viewTransitionName = "hero";
+  const vt = document.startViewTransition(() => {
+    cardEl.querySelector(".thumb").style.viewTransitionName = "";
+    vtOpening = true;
+    history.pushState({ carnet: true }, "", "#r-" + r.id);
+    route();
+    vtOpening = false;
+    const h = sheet.querySelector(".hero-img"); if (h) h.style.viewTransitionName = "hero";
+  });
+  vt.finished.finally(() => { const h = sheet.querySelector(".hero-img"); if (h) h.style.viewTransitionName = ""; });
+}
+function renderAll() {
+  renderChips();
+  $("#count").textContent = loaded && recettes.length ? String(recettes.length) : "";
+  const grid = $("#grid"), empty = $("#emptyBox");
+  grid.replaceChildren(); empty.replaceChildren();
+  grid.classList.remove("stagger");
+  if (!loaded) return;
+  if (!recettes.length) {
+    empty.append(el("div", { class: "empty" },
+      el("h2", { text: "Ton carnet est vide" }),
+      el("p", { text: "Les recettes apparaîtront ici en fiches, avec leurs ingrédients et leurs étapes. Ajoute la première depuis tes notes, une photo de livre, un site ou à la main." }),
+      el("div", { class: "opts" }, ADD_OPTS.map(([k, ic, t], i) => el("button", { class: "btn" + (i === 0 ? " primary" : ""), onclick: () => openAdd(k) }, svg(ic), t)))));
+    return;
+  }
+  const vis = recettes.filter(matches).sort((a, b) => (b.favori ? 1 : 0) - (a.favori ? 1 : 0) || norm(a.titre).localeCompare(norm(b.titre)));
+  $("#status").textContent = (filtre.q || filtre.cat !== "Toutes") ? `${vis.length} sur ${recettes.length}` : "";
+  if (!vis.length) empty.append(el("div", { class: "empty" }, el("p", { text: "Aucune recette ne correspond. Essaie un autre mot ou une autre catégorie." }),
+    el("button", { class: "btn", text: "Tout afficher", onclick: () => { filtre = { q: "", cat: "Toutes" }; $("#q").value = ""; $("#qClear").hidden = true; renderAll(); } })));
+  vis.forEach((r, i) => { const c = card(r); c.style.setProperty("--i", Math.min(i, 14)); grid.append(c); });
+  grid.classList.remove("fade");
+  if (stagger && vis.length) { void grid.offsetWidth; grid.classList.add("stagger"); }
+  else if (fadeNext && vis.length) { void grid.offsetWidth; grid.classList.add("fade"); }
+  stagger = fadeNext = false;
+}
+let stagger = true, fadeNext = false, justChip = null;
+addEventListener("scroll", () => document.querySelector("header.top").classList.toggle("scrolled", scrollY > 4), { passive: true });   // apparition en cascade : au premier affichage et au changement de catégorie
+const qIn = $("#q");
+qIn.addEventListener("input", () => { fadeNext = true; filtre.q = qIn.value; $("#qClear").hidden = !qIn.value; renderAll(); });
+qIn.addEventListener("keydown", e => { if (e.key === "Enter") qIn.blur(); });
+$("#qClear").addEventListener("click", () => { qIn.value = ""; filtre.q = ""; $("#qClear").hidden = true; renderAll(); qIn.focus(); });
+
+// ---------- Menu d'ajout ----------
+const addBtn = $("#addBtn"), menuHost = $("#menuHost");
+function openMenu() {
+  addBtn.classList.add("open");
+  const close = () => { menuHost.replaceChildren(); addBtn.classList.remove("open"); addBtn.focus(); document.removeEventListener("keydown", onKey); };
+  const onKey = e => { if (e.key === "Escape") close(); };
+  menuHost.replaceChildren(
+    el("div", { class: "scrim menu-scrim", onclick: close }),
+    el("div", { class: "menu", role: "dialog", "aria-label": "Ajouter une recette" },
+      el("h2", { text: "Ajouter une recette" }),
+      ADD_OPTS.map(([k, ic, t, d], i) => el("button", { style: `--i:${i}`, onclick: () => { close(); openAdd(k); } }, el("span", { class: "ic" }, svg(ic)), el("b", { text: t }), el("small", { text: d })))));
+  document.addEventListener("keydown", onKey);
+  menuHost.querySelector(".menu button").focus();
+}
+addBtn.addEventListener("click", openMenu);
+
+// ---------- Vues plein écran et historique ----------
+// Chaque vue a son ancre (#r-id, #modifier-id, #nouvelle, #import-notes…) : le geste « retour » du téléphone la ferme.
+const sheet = $("#sheet");
+const views = {};   // hash -> fonction qui ouvre la vue
+function go(hash) {
+  if (location.hash.slice(1) === hash) { route(); return; }
+  location.hash = hash;
+  try { history.replaceState({ carnet: true }, "", "#" + hash); } catch {}
+}
+// Retour : revient dans l'historique seulement si c'est nous qui y avons ajouté la vue
+function back() { if (history.state?.carnet) history.back(); else closeSheet(); }
+let closeT;
+function openSheet(hash, barKids, contentKids, contentClass, quiet) {
+  current = { hash };
+  clearTimeout(closeT); sheet.classList.remove("leaving", "enter");
+  if (!quiet && !vtOpening && !reduceMotion()) { void sheet.offsetWidth; sheet.classList.add("enter"); }
+  sheet.replaceChildren(
+    el("div", { class: "bar" }, el("div", { class: "wrap" }, barKids)),
+    el("div", { class: "content" + (contentClass ? " " + contentClass : "") }, el("div", { class: "wrap" }, contentKids)));
+  sheet.hidden = false; if (!quiet) sheet.scrollTop = 0;
+  document.documentElement.style.overflow = "hidden";
+}
+function closeSheet() {
+  releaseWake();
+  current = null;
+  document.documentElement.style.overflow = "";
+  const done = () => { sheet.hidden = true; sheet.classList.remove("leaving", "enter"); sheet.replaceChildren(); };
+  clearTimeout(closeT);
+  if (sheet.hidden || reduceMotion()) done();
+  else { sheet.classList.remove("enter"); sheet.classList.add("leaving"); closeT = setTimeout(done, 200); }
+  if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+}
+function route() {
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (!h) { if (current) closeSheet(); return; }
+  if (current && current.hash === h) return;
+  if (h.startsWith("r-")) { if (loaded) openRecipe(h.slice(2)); return; }
+  if (h.startsWith("modifier-")) { const r = recettes.find(x => x.id === h.slice(9)); if (r) openEditor(r); else if (loaded) closeSheet(); return; }
+  if (views[h]) { views[h](); return; }
+  if (current) closeSheet();
+}
+window.addEventListener("hashchange", route);
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !sheet.hidden && !menuHost.firstChild) back(); });
+const backBtn = (label = "Retour", fn = back) => el("button", { class: "btn ghost back", onclick: fn, "aria-label": label }, svg("back"), el("span", { text: label }));
+
+// ---------- Écran allumé pendant la cuisine ----------
+async function toggleWake(btn) {
+  if (wakeLock) { releaseWake(); btn.classList.remove("on"); btn.setAttribute("aria-pressed", "false"); toast("L'écran peut de nouveau se mettre en veille."); return; }
+  try {
+    wakeLock = await navigator.wakeLock.request("screen");
+    wakeLock.addEventListener("release", () => { wakeLock = null; btn.classList.remove("on"); btn.setAttribute("aria-pressed", "false"); });
+    btn.classList.add("on"); btn.setAttribute("aria-pressed", "true");
+    toast("L'écran reste allumé tant que la fiche est ouverte.");
+  } catch { toast("Ton appareil ne permet pas de garder l'écran allumé ici."); }
+}
+function releaseWake() { try { wakeLock?.release(); } catch {} wakeLock = null; }
+
+// ---------- Fiche recette ----------
+const fmtDate = iso => {
+  const d = new Date(iso); if (isNaN(d)) return "";
+  const o = d.getFullYear() === new Date().getFullYear() ? { day: "numeric", month: "long" } : { day: "numeric", month: "long", year: "numeric" };
+  return d.toLocaleDateString("fr-CA", o);
+};
+const grow = t => { t.style.height = "auto"; t.style.height = t.scrollHeight + "px"; };
+const pause = ms => new Promise(res => setTimeout(res, reduceMotion() ? 0 : ms));
+async function saveNotes(id, list) { await db.doc("recettes/" + id).update({ mesNotes: list, modifieLe: new Date().toISOString() }); }
+
+function openRecipe(id, opts = {}) {
+  const r = recettes.find(x => x.id === id);
+  if (!r) { if (loaded && waitFor !== id) { closeSheet(); toast("Cette recette n'existe plus."); } return; }
+  if (waitFor === id) waitFor = null;
+  const base = Number(r.portions) || 0;
+  const unit = unitOf(r);
+  const st = viewState[id] && viewState[id].base === base ? viewState[id] : (viewState[id] = { base, n: base, mult: 1, done: new Set(), doneSteps: new Set() });
+  const factor = () => base ? st.n / base : st.mult;
+  const done = st.done, doneSteps = st.doneSteps;
+
+  const ingrList = el("ul", { class: "ingr" });
+  const stepList = el("ol", { class: "steps" });
+  const out = el("output", { "aria-live": "polite" });
+  const lbl = el("span", { class: "lbl" });
+  const minus = el("button", { "aria-label": "Moins", text: "−" });
+  const plus = el("button", { "aria-label": "Plus", text: "+" });
+  const reset = el("button", { class: "reset" });
+  const hint = el("p", { class: "hint", text: "En couleur : les quantités recalculées, ici et dans les étapes." });
+
+  function draw(dir = 0) {
+    const f = factor();
+    out.textContent = base ? String(st.n) : "×" + fmtNum(st.mult, false);
+    lbl.textContent = base ? (st.n <= 1 ? singular(unit) : unit) : "la recette";
+    minus.disabled = base ? st.n <= 1 : st.mult <= .5;
+    const scaled = Math.abs(f - 1) > 1e-9;
+    reset.hidden = !scaled;
+    hint.hidden = !scaled && !unitSys;
+    hint.textContent = scaled ? "En couleur : les quantités recalculées, ici et dans les étapes." : "En couleur : les quantités converties, ici et dans les étapes.";
+    reset.textContent = base ? `↺ ${base}` : "↺ ×1";
+    reset.setAttribute("aria-label", base ? `Revenir à ${yieldText(base, unit)}` : "Revenir à la recette d'origine");
+    ingrList.replaceChildren();
+    (r.ingredients || []).forEach((line, i) => {
+      const t = String(line).trim(); if (!t) return;
+      if (isGroup(t)) { ingrList.append(el("li", { class: "grp", text: t.replace(/^#+\s*/, "").replace(/\s*:\s*$/, "") })); return; }
+      const cb = el("input", { type: "checkbox", id: `ing-${i}` });
+      cb.checked = done.has(i);
+      const li = el("li", { class: done.has(i) ? "done" : null }, el("label", { for: `ing-${i}` }, cb, ...ingCols(segs(scaleText(t, f, { leading: true, sys: unitSys || null })))));
+      cb.addEventListener("change", () => { cb.checked ? done.add(i) : done.delete(i); li.classList.add("just"); li.classList.toggle("done", cb.checked); });
+      ingrList.append(li);
+    });
+    stepList.replaceChildren();
+    (r.etapes || []).filter(s => String(s).trim()).forEach((s, i) => {
+      const li = el("li", { class: doneSteps.has(i) ? "done" : null, role: "button", tabindex: "0", "aria-pressed": String(doneSteps.has(i)) }, el("span", null, segs(scaleText(s, f, { servings: base || null, sys: unitSys || null }))));
+      const toggle = () => { doneSteps.has(i) ? doneSteps.delete(i) : doneSteps.add(i); li.classList.add("just"); li.classList.toggle("done"); li.setAttribute("aria-pressed", String(doneSteps.has(i))); };
+      li.addEventListener("click", toggle);
+      li.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
+      stepList.append(li);
+    });
+    if (dir) {
+      if (dir !== "u") { out.style.setProperty("--dy", dir > 0 ? "6px" : "-6px"); out.classList.remove("tick"); void out.offsetWidth; out.classList.add("tick"); }
+      for (const q of [...ingrList.querySelectorAll(".q"), ...stepList.querySelectorAll(".q")]) q.classList.add("bump");
+    }
+  }
+  minus.addEventListener("click", () => { if (base) st.n = Math.max(1, st.n - 1); else st.mult = Math.max(.5, st.mult - .5); draw(-1); });
+  plus.addEventListener("click", () => { if (base) st.n += 1; else st.mult += .5; draw(1); });
+  reset.addEventListener("click", () => { const d = factor() > 1 ? -1 : 1; st.n = base; st.mult = 1; draw(d); });
+  draw();
+
+  const facts = [];
+  const ap = r.prepEstime ? "≈ " : "";
+  if (r.tempsPrep) facts.push(["Préparation", ap + fmtMin(r.tempsPrep)]);
+  if (r.tempsCuisson) facts.push(["Cuisson", fmtMin(r.tempsCuisson)]);
+  if (r.tempsPrep && r.tempsCuisson) facts.push(["Total", ap + fmtMin(Number(r.tempsPrep) + Number(r.tempsCuisson))]);
+  const gal = gallery(r), src = safeUrl(r.url);
+
+  const favBtn = el("button", { class: "btn icon" + (r.favori ? " on" : ""), "aria-label": r.favori ? "Retirer des favoris" : "Ajouter aux favoris", "aria-pressed": String(!!r.favori),
+    onclick: async e => { if (!guardWrite()) return; e.currentTarget.classList.add("popping"); st.popFav = true; try { await saveDoc(r.id, { ...strip(r), favori: !r.favori, modifieLe: new Date().toISOString() }); toast(r.favori ? "Retirée des favoris." : "Ajoutée aux favoris."); } catch (e) { toast("Échec : " + (e.message || e.code)); } } }, svg("star", r.favori));
+  if (st.popFav) { st.popFav = false; favBtn.classList.add("popping"); }
+  const wakeBtn = "wakeLock" in navigator ? el("button", { class: "btn icon", "aria-label": "Garder l'écran allumé", "aria-pressed": "false", title: "Garder l'écran allumé" }, svg("sun")) : null;
+  wakeBtn?.addEventListener("click", () => toggleWake(wakeBtn));
+  const editBtn = canWrite && db ? el("button", { class: "btn icon", "aria-label": "Modifier la recette", title: "Modifier", onclick: () => go("modifier-" + r.id) }, svg("pen")) : null;
+
+  // Mes notes : remarques datées ajoutées depuis la fiche
+  const canNote = canWrite && !!db;
+  const canPhoto = canNote && !!assets;
+  const mine = (r.mesNotes || []).slice().sort((a, b) => String(b.le || "").localeCompare(String(a.le || "")));
+  const hadFocus = document.activeElement?.id === "note-new";
+  const myBox = el("div", { class: "mynotes" });
+  let noteTa = null;
+  if (canNote) {
+    noteTa = el("textarea", { id: "note-new", rows: "2", "aria-label": "Nouvelle note", autocapitalize: "sentences",
+      placeholder: "Une remarque pour la prochaine fois : moins de sel, 5 min de cuisson en plus…" });
+    noteTa.value = st.draft || "";
+    st.pending = st.pending || [];
+    const addB = el("button", { class: "btn primary", text: "Ajouter" });
+    const stripBox = el("div");
+    const refresh = () => {
+      stripBox.replaceChildren(...(st.pending.length ? [photoStrip(st.pending, i => { URL.revokeObjectURL(st.pending[i].url); st.pending.splice(i, 1); refresh(); })] : []));
+      st.pending.forEach(p => p.fresh = false);
+      addB.disabled = !(noteTa.value.trim() || st.pending.length);
+    };
+    const camB = canPhoto ? el("button", { class: "btn ghost icon cam", type: "button", "aria-label": "Ajouter une photo du plat", title: "Ajouter une photo du plat",
+      onclick: () => pickPhotos(fs => { for (const f of fs) st.pending.push({ blob: f, url: URL.createObjectURL(f), fresh: true }); refresh(); }) }, svg("camera")) : null;
+    noteTa.addEventListener("input", () => { st.draft = noteTa.value; addB.disabled = !(noteTa.value.trim() || st.pending.length); grow(noteTa); });
+    noteTa.addEventListener("keydown", e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); addB.click(); } });
+    addB.addEventListener("click", async () => {
+      const t = noteTa.value.trim(), pend = st.pending.slice();
+      if ((!t && !pend.length) || !guardWrite()) return;
+      addB.disabled = true;
+      if (pend.length) addB.replaceChildren(el("span", { class: "spin" }), " Envoi…");
+      try {
+        const photos = pend.length ? await uploadAll(pend.map(p => p.blob)) : [];
+        const n = { id: Math.random().toString(36).slice(2, 10), texte: t, le: new Date().toISOString() };
+        if (photos.length) n.photos = photos;
+        st.justAdded = n.id; st.draft = ""; st.pending = [];
+        await saveNotes(r.id, [...(r.mesNotes || []), n]);
+        pend.forEach(p => URL.revokeObjectURL(p.url));
+        if (photos.length) toast(photos.length > 1 ? "Photos ajoutées à la galerie." : "Photo ajoutée à la galerie.", { label: "Voir", run: () => showPhoto(photos[0]) });
+        else toast("Note ajoutée.");
+      } catch (e) { st.draft = t; st.pending = pend; addB.disabled = false; addB.textContent = "Ajouter"; toast("Échec : " + (e.message || e.code)); }
+    });
+    myBox.append(el("div", { class: "note-add" }, noteTa, stripBox, el("div", { class: "row" }, camB,
+      el("small", { text: mine.length ? "" : (canPhoto ? "Un texte, une photo du plat, ou les deux." : "Visible par tous ceux qui ouvrent le carnet.") }), addB)));
+    refresh();
+  }
+  const noteEl = n => {
+    const box = el("div", { class: "mynote" + (st.justAdded === n.id ? " new" : "") });
+    const show = () => {
+      if (st.editing === n.id) { st.editing = null; st.editPh = null; }
+      box.classList.remove("editing");
+      box.replaceChildren(
+        el("span", { class: "d", text: fmtDate(n.le) + (n.modifie ? " · modifiée" : "") }),
+        canNote ? el("span", { class: "acts" },
+          el("button", { "aria-label": "Modifier la note", onclick: () => edit(n.texte) }, svg("pen")),
+          el("button", { "aria-label": "Supprimer la note", onclick: () => del() }, svg("trash"))) : el("span"),
+        n.texte ? el("div", { class: "t", text: n.texte }) : null,
+        (n.photos || []).length ? el("div", { class: "nphotos" }, n.photos.map(id =>
+          el("button", { class: "nphoto", type: "button", "aria-label": "Voir la photo en grand", onclick: () => showPhoto(id) }, el("img", { src: blobUrl(id), alt: "", loading: "lazy" })))) : null);
+    };
+    const edit = (text, fresh = true) => {
+      st.editing = n.id; st.editText = text;
+      if (fresh || !st.editPh) st.editPh = { keep: [...(n.photos || [])], add: [] };
+      const ph = st.editPh;
+      box.classList.add("editing");
+      const t = el("textarea", { "aria-label": "Modifier la note", autocapitalize: "sentences" }); t.value = text;
+      const save = el("button", { class: "btn primary", text: "Enregistrer" });
+      const stripE = el("div");
+      const refreshE = () => stripE.replaceChildren(...((ph.keep.length + ph.add.length) ? [photoStrip(
+        [...ph.keep.map(id => ({ url: blobUrl(id) })), ...ph.add],
+        i => { if (i < ph.keep.length) ph.keep.splice(i, 1); else ph.add.splice(i - ph.keep.length, 1); refreshE(); })] : []));
+      const cam = canPhoto ? el("button", { class: "btn ghost icon cam", type: "button", "aria-label": "Ajouter une photo", onclick: () => pickPhotos(fs => { for (const f of fs) ph.add.push({ blob: f, url: URL.createObjectURL(f), fresh: true }); refreshE(); ph.add.forEach(p => p.fresh = false); }) }, svg("camera")) : null;
+      box.replaceChildren(t, stripE, el("div", { class: "row" }, cam, el("button", { class: "btn ghost", text: "Annuler", onclick: show }), save));
+      refreshE();
+      t.addEventListener("input", () => { st.editText = t.value; grow(t); });
+      t.addEventListener("keydown", e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); save.click(); } if (e.key === "Escape") { e.stopPropagation(); show(); } });
+      requestAnimationFrame(() => { grow(t); if (fresh) { t.focus(); t.setSelectionRange(t.value.length, t.value.length); } });
+      save.addEventListener("click", async () => {
+        const v = t.value.trim();
+        const before = n.photos || [];
+        const phChanged = ph.add.length > 0 || ph.keep.length !== before.length;
+        if (!v && !ph.keep.length && !ph.add.length) return del();
+        if (v === n.texte && !phChanged) return show();
+        if (!guardWrite()) return;
+        save.disabled = true;
+        if (ph.add.length) save.replaceChildren(el("span", { class: "spin" }), " Envoi…");
+        try {
+          const ids = ph.add.length ? await uploadAll(ph.add.map(p => p.blob)) : [];
+          const photos = [...ph.keep, ...ids];
+          st.editing = null; st.editPh = null;
+          await saveNotes(r.id, (r.mesNotes || []).map(x => {
+            if (x.id !== n.id) return x;
+            const y = { ...x, texte: v, modifie: new Date().toISOString() };
+            if (photos.length) y.photos = photos; else delete y.photos;
+            return y;
+          }));
+          toast("Note modifiée.");
+        } catch (e) { st.editing = n.id; st.editPh = ph; save.disabled = false; save.textContent = "Enregistrer"; toast("Échec : " + (e.message || e.code)); }
+      });
+    };
+    const del = async () => {
+      if (!guardWrite()) return;
+      st.editing = null; st.editPh = null;
+      box.style.maxHeight = box.offsetHeight + "px"; void box.offsetHeight; box.classList.add("gone");
+      await pause(230);
+      try {
+        await saveNotes(r.id, (r.mesNotes || []).filter(x => x.id !== n.id));
+        toast("Note supprimée.", { label: "Annuler", run: async () => {
+          const cur = recettes.find(x => x.id === r.id); if (!cur) return;
+          st.justAdded = n.id;
+          try { await saveNotes(r.id, [...(cur.mesNotes || []).filter(x => x.id !== n.id), n]); } catch (e) { toast("Échec : " + (e.message || e.code)); }
+        } });
+      } catch (e) { box.classList.remove("gone"); box.style.maxHeight = ""; toast("Échec : " + (e.message || e.code)); }
+    };
+    if (st.editing === n.id) edit(st.editText ?? n.texte, false); else show();
+    return box;
+  };
+  for (const n of mine) myBox.append(noteEl(n));
+  st.justAdded = null;
+  const hasMine = canNote || mine.length > 0;
+
+  const hasNotes = !!(hasMine || r.notes || r.source || src || r.photoCredit);
+  const tabs = el("div", { class: "tabs", role: "tablist" });
+  const secIngr = el("h3", { class: "section-h", id: "sec-ingr", text: "Ingrédients" });
+  const secPrep = el("h3", { class: "section-h", id: "sec-prep", text: "Préparation" });
+  const secNotes = hasNotes ? el("h3", { class: "section-h", id: "sec-notes", text: "Notes" }) : null;
+  const tabList = [["Ingrédients", secIngr], ["Préparation", secPrep]]; if (secNotes) tabList.push(["Notes", secNotes]);
+  for (const [t, target] of tabList) tabs.append(el("button", { onclick: () => target.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }), text: t }));
+
+  const yieldBox = el("div", { class: "yield" }, el("span", { class: "stepper" }, minus, out, plus), lbl, reset,
+    hint);
+  const noIngr = !(r.ingredients || []).length, noSteps = !(r.etapes || []).filter(s => String(s).trim()).length;
+  const left = el("div", null,
+    gal.length ? buildGallery(gal, st) : null,
+    el("div", { class: "rhead" },
+      el("span", { class: "cat", text: r.categorie || "Autres" }),
+      el("h2", { class: "title", text: r.titre || "Sans titre" }),
+      facts.length ? el("div", { class: "facts" }, facts.map(([k, v]) => el("div", { class: "fact" }, el("small", { text: k }), el("b", { text: v })))) : null,
+      (r.etiquettes || []).length ? el("div", { class: "tags" }, r.etiquettes.map(t => el("span", { class: "tag", text: t }))) : null),
+    tabs,
+    secIngr, noIngr ? el("p", { class: "intro", text: "Pas encore d'ingrédients. Touche « Modifier » pour les ajouter." }) : [yieldBox, ingrList]);
+  const right = el("div", null,
+    secPrep, noSteps ? el("p", { class: "intro", text: "Pas encore d'étapes." }) : stepList,
+    hasNotes ? [secNotes, hasMine ? myBox : null,
+      r.notes ? [hasMine ? el("div", { class: "sub-h", text: "Notes de la recette" }) : null, el("div", { class: "notes", text: r.notes })] : null,
+      (r.source || src) ? el("div", { class: "src" }, "Source : ", src ? el("a", { href: src, target: "_blank", rel: "noopener", text: r.source || src }) : r.source) : null,
+      r.photoCredit ? el("div", { class: "src" }, "Photo d'illustration : " + r.photoCredit) : null] : null);
+
+  openSheet("r-" + r.id, [backBtn("Recettes"), el("span", { class: "sp" }), wakeBtn, favBtn, editBtn],
+    el("article", { class: "recipe", "data-cat": catKey(r.categorie || "Autres") }, left, right), gal.length ? "flush" : null, opts.quiet);
+  if (noteTa) { requestAnimationFrame(() => grow(noteTa)); if (hadFocus) noteTa.focus({ preventScroll: true }); }
+
+  // onglet actif selon la section visible
+  const tabBtns = [...tabs.children];
+  const ind = el("span", { class: "ind", "aria-hidden": "true" }); tabs.prepend(ind);
+  let lastIdx = -1;
+  const onScroll = () => {
+    const y = 140; let idx = 0;
+    tabList.forEach(([, h], i) => { if (h.getBoundingClientRect().top < y) idx = i; });
+    if (sheet.scrollTop + sheet.clientHeight >= sheet.scrollHeight - 8 && sheet.scrollTop > 0) idx = tabList.length - 1;
+    tabBtns.forEach((b, i) => b.setAttribute("aria-current", String(i === idx)));
+    if (idx !== lastIdx || !tabs.classList.contains("ready")) {
+      const b = tabBtns[idx];
+      if (b && b.offsetWidth) {
+        ind.style.width = b.offsetWidth + "px"; ind.style.transform = `translateX(${b.offsetLeft}px)`;
+        lastIdx = idx;
+        if (!tabs.classList.contains("ready")) requestAnimationFrame(() => tabs.classList.add("ready"));
+      }
+    }
+  };
+  sheet.onscroll = onScroll; onScroll();
+}
+function strip(r) { const { id, ...rest } = r; return rest; }
+
+// ---------- Éditeur ----------
+function openEditor(r, opts = {}) {
+  r = r || {};
+  const isNew = !r.id;
+  const hash = opts.hash || (isNew ? "nouvelle" : "modifier-" + r.id);
+  const f = (id, label, input, cls, help) => el("div", { class: "field" + (cls ? " " + cls : "") }, el("label", { for: id, text: label }), input, help ? el("small", { text: help }) : null);
+  const titre = el("input", { id: "f-titre", value: r.titre || "", required: true, autocapitalize: "sentences" });
+  const cat = el("select", { id: "f-cat" }, CATS.map(c => el("option", { value: c, selected: (r.categorie || "Plats") === c, text: c })));
+  const portions = el("input", { id: "f-port", type: "number", inputmode: "numeric", min: "0", step: "1", value: r.portions || "" });
+  const unite = el("input", { id: "f-unite", value: r.portionsUnite || "", placeholder: "portions", list: "unites" });
+  const unites = el("datalist", { id: "unites" }, ["portions", "personnes", "pièces", "parts", "carrés", "verres", "biscuits", "muffins"].map(u => el("option", { value: u })));
+  const prep = el("input", { id: "f-prep", type: "number", inputmode: "numeric", min: "0", step: "5", value: r.tempsPrep || "" });
+  const cuis = el("input", { id: "f-cuis", type: "number", inputmode: "numeric", min: "0", step: "5", value: r.tempsCuisson || "" });
+  const tags = el("input", { id: "f-tags", value: (r.etiquettes || []).join(", "), placeholder: "végé, rapide, Noël…" });
+  const ingr = el("textarea", { id: "f-ingr", rows: "10" }); ingr.value = (r.ingredients || []).join("\n");
+  const etapes = el("textarea", { id: "f-etapes", rows: "10" }); etapes.value = (r.etapes || []).join("\n\n");
+  const notes = el("textarea", { id: "f-notes", rows: "4" }); notes.value = r.notes || "";
+  const source = el("input", { id: "f-source", value: r.source || "", placeholder: "Livre, personne, site…" });
+  const url = el("input", { id: "f-url", type: "url", inputmode: "url", value: r.url || "", placeholder: "https://…" });
+
+  let photoId = r.photoId || null, pendingBlob = opts.photoBlob || null;
+  const prev = el("div", { class: "prev" });
+  const rmBtn = el("button", { class: "btn ghost", type: "button", text: "Retirer", onclick: () => { photoId = null; pendingBlob = null; drawPrev(); } });
+  const drawPrev = () => {
+    prev.replaceChildren();
+    const s = pendingBlob ? URL.createObjectURL(pendingBlob) : (photoId ? blobUrl(photoId) : null);
+    if (s) prev.append(el("img", { src: s, alt: "" }));
+    rmBtn.hidden = !s;
+  };
+  drawPrev();
+  const photoIn = el("input", { id: "f-photo", type: "file", accept: "image/*", hidden: true, onchange: () => { if (photoIn.files[0]) { pendingBlob = photoIn.files[0]; drawPrev(); } } });
+  const photoRow = el("div", { class: "photo-pick" }, prev,
+    assets ? el("button", { class: "btn", type: "button", text: "Choisir une photo", onclick: () => photoIn.click() }) : el("small", { text: "Ajout de photo réservé aux éditeurs de la page." }),
+    rmBtn, photoIn);
+
+  const msg = el("div");
+  const mkSave = () => el("button", { class: "btn primary", text: "Enregistrer", onclick: save });
+  const saveTop = mkSave(), saveBottom = mkSave();
+  async function save() {
+    if (!guardWrite()) return;
+    if (!titre.value.trim()) { msg.replaceChildren(el("div", { class: "msg err", text: "Donne un titre à la recette." })); titre.focus(); return; }
+    for (const b of [saveTop, saveBottom]) { b.disabled = true; b.replaceChildren(el("span", { class: "spin" }), " Enregistrement…"); }
+    try {
+      if (pendingBlob && assets) photoId = (await assets.upload(await shrink(pendingBlob))).id;
+      let steps = etapes.value.split(/\n\s*\n/).map(s => s.replace(/^\s*\d+[.)]\s*/, "").trim()).filter(Boolean);
+      if (steps.length === 1 && etapes.value.trim().includes("\n")) steps = etapes.value.split("\n").map(s => s.replace(/^\s*\d+[.)]\s*/, "").trim()).filter(Boolean);
+      const data = {
+        titre: titre.value.trim(), categorie: cat.value,
+        portions: Number(portions.value) || null, portionsUnite: unite.value.trim(),
+        tempsPrep: Number(prep.value) || null, tempsCuisson: Number(cuis.value) || null,
+        prepEstime: !!(r.prepEstime && Number(prep.value) && Number(prep.value) === Number(r.tempsPrep)),
+        etiquettes: tags.value.split(",").map(s => s.trim()).filter(Boolean),
+        ingredients: ingr.value.split("\n").map(s => s.trim()).filter(Boolean),
+        etapes: steps,
+        notes: notes.value.trim(), source: source.value.trim(), url: url.value.trim(),
+        photoId, favori: !!r.favori, mesNotes: r.mesNotes || [],
+        ...(photoId && photoId === r.photoId && r.photoCredit ? { photoCredit: r.photoCredit } : {}),
+        creeLe: r.creeLe || new Date().toISOString(), modifieLe: new Date().toISOString(),
+      };
+      const id = r.id || newId(data.titre);
+      waitFor = id;
+      await saveDoc(id, data);
+      toast(isNew ? "Recette ajoutée." : "Modifications enregistrées.");
+      if (!isNew && history.state?.carnet && hash.startsWith("modifier-")) { current = null; history.back(); }
+      else { history.replaceState({ carnet: true }, "", "#r-" + id); current = null; route(); }
+    } catch (e) {
+      msg.replaceChildren(el("div", { class: "msg err", text: "Enregistrement impossible : " + (e.message || e.code || e) }));
+      for (const b of [saveTop, saveBottom]) { b.disabled = false; b.textContent = "Réessayer"; }
+    }
+  }
+
+  // Suppression, depuis l'éditeur seulement (évite les fausses manips en cuisine)
+  const delSlot = el("div");
+  if (!isNew) {
+    const delBtn = el("button", { class: "btn danger", type: "button", text: "Supprimer la recette" });
+    delBtn.addEventListener("click", () => {
+      delSlot.replaceChildren(el("div", { class: "confirm" }, el("span", { text: "Supprimer définitivement cette recette ?" }),
+        el("button", { class: "btn danger", type: "button", text: "Oui, supprimer", onclick: async () => {
+          if (!guardWrite()) return;
+          try { await db.doc("recettes/" + r.id).delete(); toast("Recette supprimée."); history.replaceState(null, "", location.pathname + location.search); current = null; closeSheet(); }
+          catch (e) { toast("Suppression impossible : " + (e.message || e.code)); } } }),
+        el("button", { class: "btn ghost", type: "button", text: "Annuler", onclick: () => delSlot.replaceChildren(delBtn) })));
+    });
+    delSlot.append(delBtn);
+  }
+
+  openSheet(hash, [backBtn("Annuler"), el("span", { class: "sp", text: opts.label || (isNew ? "Nouvelle recette" : "Modifier") }), saveTop],
+    [opts.banner || null, el("div", { class: "form" },
+      f("f-titre", "Titre", titre),
+      f("f-cat", "Catégorie", cat),
+      f("f-port", "Portions", portions, "s3"), f("f-unite", "Unité", el("span", { style: "display:contents" }, unite, unites), "s3", "personnes, pièces, carrés…"),
+      f("f-prep", "Préparation (min)", prep, "s3"), f("f-cuis", "Cuisson (min)", cuis, "s3"),
+      f("f-ingr", "Ingrédients", ingr, null, "Un par ligne, quantité en premier (« 200 g de farine »). Une ligne qui finit par « : » devient un sous-titre. Les quantités suivent le nombre de portions."),
+      f("f-etapes", "Étapes", etapes, null, "Une étape par paragraphe (ligne vide entre deux étapes)."),
+      f("f-tags", "Étiquettes", tags, null, "Séparées par des virgules."),
+      f("f-notes", "Notes de la recette", notes, null, "Tes remarques datées s'ajoutent directement depuis la fiche, section Notes."),
+      f("f-source", "Source", source, "s3"), f("f-url", "Lien", url, "s3"),
+      el("div", { class: "field" }, el("span", { class: "lab", text: "Photo" }), photoRow)),
+      msg,
+      el("div", { class: "form-foot" }, saveBottom, el("span", { class: "grow" }), delSlot)]);
+  if (isNew && !r.titre) titre.focus({ preventScroll: true });
+}
+function newId(t) { return (norm(t).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "recette") + "-" + Math.random().toString(36).slice(2, 7); }
+async function saveDoc(id, data) { await db.doc("recettes/" + id).set(data); }
+function guardWrite() {
+  if (!db) { toast("Le stockage n'est pas disponible ici. Ouvre la page dans claude.ai, connecté·e."); return false; }
+  if (!canWrite) { toast("Tu peux consulter ce carnet, mais pas le modifier."); return false; }
+  return true;
+}
+// Réduit une image à 1600 px avant envoi
+async function shrink(file) {
+  try {
+    const bmp = await createImageBitmap(file);
+    const k = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
+    if (k === 1 && file.size < 900000) return file;
+    const c = document.createElement("canvas"); c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+    c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+    return await new Promise(res => c.toBlob(b => res(b || file), "image/jpeg", .85));
+  } catch { return file; }
+}
+
+// ---------- Extraction par Claude ----------
+const FORMAT = `Réponds uniquement avec un objet JSON de la forme :
+{"recettes":[{"titre":"…","categorie":"une valeur parmi ${CATS.join(", ")}","portions":4,"portionsUnite":"personnes","tempsPrep":20,"prepEstime":false,"tempsCuisson":45,"etiquettes":["…"],"ingredients":["200 g de farine","Pour la sauce :","2 c. à soupe (30 ml) de beurre"],"etapes":["…","…"],"notes":"…","source":"…"}]}
+Règles :
+- N'invente rien. Un champ absent du texte vaut null (nombres) ou "" / [] (textes, listes).
+- portions : le rendement indiqué (nombre). portionsUnite : ce qu'il compte, au pluriel (« personnes », « portions », « naans », « biscuits », « carrés »…).
+- tempsPrep et tempsCuisson en minutes. Si le temps de préparation n'est pas indiqué, estime le temps de travail actif d'après les étapes (sans marinade ni repos) et mets "prepEstime": true ; sinon "prepEstime": false.
+- Un ingrédient par élément, la quantité en tout premier, en chiffres (« 2 œufs », pas « deux œufs »). Garde les unités d'origine et les équivalences entre parenthèses (« 1 c. à soupe (15 ml) »). Un sous-groupe d'ingrédients devient un élément qui finit par « : ».
+- Une étape par élément, sans numéro. Écris les nombres en chiffres.
+- Écris en français ; si la recette est dans une autre langue, traduis-la.
+- notes : astuces, variantes, remarques personnelles présentes dans le texte.
+- etiquettes : 0 à 4 mots courts utiles pour chercher (ex. végé, rapide, four).`;
+function cleanRecipe(x) {
+  const arr = v => Array.isArray(v) ? v.map(s => String(s ?? "").trim()).filter(Boolean) : [];
+  const num = v => (v == null || v === "" || isNaN(Number(v))) ? null : Math.round(Number(v));
+  return {
+    titre: String(x?.titre || "").trim(), categorie: CATS.includes(x?.categorie) ? x.categorie : "Autres",
+    portions: num(x?.portions), portionsUnite: String(x?.portionsUnite || "").trim().slice(0, 30),
+    tempsPrep: num(x?.tempsPrep), tempsCuisson: num(x?.tempsCuisson), prepEstime: !!x?.prepEstime && num(x?.tempsPrep) != null,
+    etiquettes: arr(x?.etiquettes).slice(0, 6), ingredients: arr(x?.ingredients), etapes: arr(x?.etapes),
+    notes: String(x?.notes || "").trim(), source: String(x?.source || "").trim(),
+  };
+}
+function sampleErr(e) {
+  const c = e?.code;
+  if (c === "not_granted") return `Tu as refusé que la page utilise ${IA}. Recharge la page pour qu'elle le redemande.`;
+  if (c === "rate_limited") return "Trop de demandes d'un coup. Réessaie dans un moment.";
+  if (c === "image_rejected") return "Cette image n'est pas lisible. Essaie un JPEG ou PNG plus petit.";
+  if (c === "images_unavailable") return `L'envoi d'images à ${IA} n'est pas disponible dans cette vue.`;
+  if (c === "invalid_json") return "La réponse n'était pas exploitable. Réessaie.";
+  if (c === "prompt_too_large") return "Le texte est trop long. Colle moins de recettes à la fois.";
+  if (c === "session_expired") return "Ta session a expiré. Reconnecte-toi à claude.ai.";
+  if (c === "cancelled") return "Annulé.";
+  return `${IA} n'a pas pu répondre. Réessaie.`;
+}
+async function extract(prompt, images, msgBox, btn, extra = {}) {
+  if (!sample) { msgBox.replaceChildren(el("div", { class: "msg err", text: "La lecture automatique n'est disponible que dans claude.ai, connecté·e." })); return null; }
+  btn.disabled = true;
+  const old = btn.textContent;
+  btn.replaceChildren(el("span", { class: "spin" }), " Lecture…");
+  msgBox.replaceChildren(el("div", { class: "msg", text: `${IA} lit la recette. Ça prend en général 10 à 40 secondes ; garde la page ouverte.` }));
+  try {
+    const out = await sample.json(prompt, { ...(images ? { images } : {}), ...extra });
+    const list = (Array.isArray(out?.recettes) ? out.recettes : Array.isArray(out) ? out : [out]).map(cleanRecipe).filter(r => r.titre || r.ingredients.length);
+    if (!list.length) { msgBox.replaceChildren(el("div", { class: "msg err", text: "Aucune recette trouvée dans ce contenu." })); return null; }
+    msgBox.replaceChildren();
+    return list;
+  } catch (e) {
+    msgBox.replaceChildren(el("div", { class: "msg err", text: sampleErr(e) }));
+    return null;
+  } finally { btn.disabled = false; btn.textContent = old; }
+}
+function reviewResults(list, extra = {}) {
+  if (list.length === 1) {
+    openEditor({ ...list[0], url: extra.url || "", source: list[0].source || extra.source || "" }, {
+      hash: "verifier", label: "Vérifier", photoBlob: extra.photoBlob,
+      banner: el("div", { class: "msg ok", text: "Recette lue. Relis, surtout les quantités, puis enregistre." }) });
+    history.replaceState({ carnet: true }, "", "#verifier");
+    return;
+  }
+  const checks = list.map((r, i) => el("input", { type: "checkbox", id: "c-" + i, checked: true }));
+  const msg = el("div");
+  const saveAll = el("button", { class: "btn primary", text: "Enregistrer" });
+  saveAll.addEventListener("click", async () => {
+    if (!guardWrite()) return;
+    const pick = list.filter((_, i) => checks[i].checked);
+    if (!pick.length) { toast("Coche au moins une recette."); return; }
+    saveAll.disabled = true;
+    let n = 0;
+    for (const r of pick) {
+      saveAll.replaceChildren(el("span", { class: "spin" }), ` ${n + 1}/${pick.length}`);
+      try { await saveDoc(newId(r.titre), { ...r, source: r.source || extra.source || "", url: extra.url || "", photoId: null, favori: false, creeLe: new Date().toISOString(), modifieLe: new Date().toISOString() }); n++; }
+      catch (e) { msg.replaceChildren(el("div", { class: "msg err", text: `Arrêté après ${n} recette(s) : ` + (e.message || e.code) })); saveAll.disabled = false; saveAll.textContent = "Réessayer"; return; }
+    }
+    closeSheet();
+    toast(`${n} recette${n > 1 ? "s" : ""} ajoutée${n > 1 ? "s" : ""}.`);
+  });
+  openSheet("verifier", [backBtn("Annuler"), el("span", { class: "sp", text: `${list.length} recettes trouvées` }), saveAll],
+    [el("p", { class: "intro", text: "Décoche celles que tu ne veux pas garder. Tu pourras corriger chaque fiche ensuite avec « Modifier »." }),
+     el("div", { class: "cands" }, list.map((r, i) => el("label", { class: "cand", for: "c-" + i }, checks[i],
+       el("div", { class: "grow" }, el("div", { class: "t", text: r.titre || "Sans titre" }),
+         el("div", { class: "d", text: `${r.categorie}${r.portions ? " · " + yieldText(r.portions, r.portionsUnite || "portions") : ""} · ${r.ingredients.length} ingrédients · ${r.etapes.length} étapes` }),
+         r.ingredients.length ? el("div", { class: "d", text: r.ingredients.slice(0, 4).join(" · ") + (r.ingredients.length > 4 ? " …" : "") }) : null)))),
+     msg]);
+  history.replaceState({ carnet: true }, "", "#verifier");
+}
+
+// ---------- Les quatre façons d'ajouter ----------
+function openAdd(kind) { go(kind === "saisir" ? "nouvelle" : "import-" + kind); }
+views["nouvelle"] = () => openEditor(null);
+views["verifier"] = () => { if (current?.hash !== "verifier") closeSheet(); };
+
+views["import-notes"] = () => {
+  const ta = el("textarea", { id: "n-text", rows: "14", placeholder: "Colle ici le texte de tes notes : une recette ou plusieurs à la suite." });
+  const msg = el("div");
+  const go_ = el("button", { class: "btn primary", text: "Lire" });
+  go_.addEventListener("click", async () => {
+    const t = ta.value.trim();
+    if (t.length < 20) { msg.replaceChildren(el("div", { class: "msg err", text: "Colle d'abord le texte d'au moins une recette." })); return; }
+    ta.blur();
+    const list = await extract("Voici des notes personnelles qui contiennent une ou plusieurs recettes de cuisine. Sépare chaque recette.\n\n" + FORMAT + "\n\nNOTES :\n" + t.slice(0, 120000), null, msg, go_);
+    if (list) reviewResults(list, { source: "Mes notes" });
+  });
+  openSheet("import-notes", [backBtn(), el("span", { class: "sp", text: "Depuis mes notes" }), go_],
+    [el("p", { class: "intro", text: `Dans Notes, ouvre une recette, sélectionne tout et copie, puis colle ici. Tu peux en coller plusieurs à la suite : ${IA} les sépare et les met en fiches, et tu vérifies avant d'enregistrer.` }),
+     el("div", { class: "form" }, el("div", { class: "field" }, el("label", { for: "n-text", text: "Texte" }), ta)), msg]);
+};
+
+views["import-photo"] = () => {
+  let files = [];
+  const thumbs = el("div", { class: "thumbs" });
+  const pick = (capture) => { const i = el("input", { type: "file", accept: "image/*", multiple: !capture, capture: capture ? "environment" : null, hidden: true }); i.addEventListener("change", () => addFiles(i.files)); document.body.append(i); i.click(); setTimeout(() => i.remove(), 60000); };
+  const useAsCover = el("input", { id: "p-cover", type: "checkbox" });
+  const msg = el("div");
+  const go_ = el("button", { class: "btn primary", text: "Lire", disabled: true });
+  const addFiles = fl => {
+    files = [...files, ...[...fl].filter(f => /^image\//.test(f.type) || /\.(heic|heif)$/i.test(f.name))].slice(0, 5);
+    thumbs.replaceChildren(...files.map((f, i) => el("button", { type: "button", class: "btn ghost", style: "padding:0;height:auto;border-radius:10px", "aria-label": "Retirer cette photo", onclick: () => { files.splice(i, 1); addFiles([]); } }, el("img", { src: URL.createObjectURL(f), alt: "" }))));
+    go_.disabled = !files.length;
+  };
+  const drop = el("div", { class: "drop" },
+    el("b", { text: "Photo d'une page de livre, d'une fiche ou d'une capture d'écran" }),
+    el("span", { text: "Jusqu'à 5 photos pour une même recette. Touche une photo pour la retirer." }),
+    el("div", { class: "row" },
+      el("button", { class: "btn primary", type: "button", onclick: () => pick(true) }, svg("camera"), "Prendre une photo"),
+      el("button", { class: "btn", type: "button", text: "Choisir des images", onclick: () => pick(false) })),
+    thumbs);
+  drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("over"); });
+  drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+  drop.addEventListener("drop", e => { e.preventDefault(); drop.classList.remove("over"); addFiles(e.dataTransfer.files); });
+  go_.addEventListener("click", async () => {
+    try { const lim = await sample?.limits?.(); if (sample && !lim?.images) { msg.replaceChildren(el("div", { class: "msg err", text: `L'envoi d'images à ${IA} n'est pas disponible dans cette vue.` })); return; } } catch {}
+    const imgs = await Promise.all(files.map(shrink));
+    const list = await extract("Ces images montrent une recette de cuisine (photo de livre, fiche manuscrite ou capture d'écran). Si plusieurs images, elles forment ensemble la même recette, dans l'ordre. Recopie fidèlement les quantités.\n\n" + FORMAT, imgs, msg, go_);
+    if (list) reviewResults(list.slice(0, 1), { photoBlob: useAsCover.checked ? files[0] : null });
+  });
+  openSheet("import-photo", [backBtn(), el("span", { class: "sp", text: "Depuis une photo" }), go_],
+    [drop,
+     assets ? el("label", { class: "check", for: "p-cover" }, useAsCover, "Utiliser la première photo comme image de la recette") : null,
+     msg]);
+};
+
+views["import-lien"] = () => {
+  const url = el("input", { id: "l-url", type: "url", inputmode: "url", placeholder: "https://…", autocomplete: "off" });
+  const pasted = el("textarea", { id: "l-text", rows: "8", placeholder: "Sur téléphone : ouvre la recette, sélectionne tout, copie et colle ici." });
+  const msg = el("div");
+  const go_ = el("button", { class: "btn primary", text: "Lire" });
+  go_.addEventListener("click", async () => {
+    const u = url.value.trim();
+    if (u && !safeUrl(u)) { msg.replaceChildren(el("div", { class: "msg err", text: "L'adresse doit commencer par https://" })); return; }
+    let text = pasted.value.trim();
+    if (!text && u && sample?.lienDirect) {
+      // l'IA lit elle-même la page à cette adresse
+      let host = ""; try { host = new URL(u).hostname.replace(/^www\./, ""); } catch {}
+      const list = await extract("Lis la page web à cette adresse et extrais seulement la recette principale (ignore menus, publicités et commentaires) : " + u + "\n\n" + FORMAT, null, msg, go_, { url: u });
+      if (list) reviewResults(list.slice(0, 1), { url: u, source: host });
+      return;
+    }
+    if (!text && u) { text = await readPage(u, msg, go_); if (!text) { pasted.focus(); return; } }
+    if (!text) { msg.replaceChildren(el("div", { class: "msg err", text: "Colle une adresse ou le texte de la page." })); return; }
+    let host = ""; try { host = new URL(u).hostname.replace(/^www\./, ""); } catch {}
+    const list = await extract("Voici le texte d'une page web qui contient une recette (avec menus, publicités et commentaires autour : ignore-les). Extrais seulement la recette principale.\n\n" + FORMAT + "\n\nPAGE (" + (u || "sans adresse") + ") :\n" + text.slice(0, 60000), null, msg, go_);
+    if (list) reviewResults(list.slice(0, 1), { url: u, source: host });
+  });
+  openSheet("import-lien", [backBtn(), el("span", { class: "sp", text: "Depuis un lien" }), go_],
+    [el("p", { class: "intro", text: sample?.lienDirect ? "Colle l'adresse de la recette : la page est lue automatiquement. Si le site refuse, colle aussi le texte de la page." : "Dans l'app Claude sur ordinateur, la page est lue toute seule à partir de l'adresse. Sur téléphone, colle aussi le texte de la page." }),
+     el("div", { class: "form" },
+       el("div", { class: "field" }, el("label", { for: "l-url", text: "Adresse de la recette" }), url),
+       el("div", { class: "field" }, el("label", { for: "l-text", text: "Texte de la page" }), pasted)),
+     msg]);
+};
+// Lecture d'une page web par le navigateur intégré de l'app Claude (ordinateur seulement)
+async function readPage(u, msg, btn) {
+  if (!mcp) { msg.replaceChildren(el("div", { class: "msg err", text: "Lecture automatique indisponible ici. Colle le texte de la page dans le second champ." })); return null; }
+  btn.disabled = true; const old = btn.textContent;
+  btn.replaceChildren(el("span", { class: "spin" }), " Ouverture…");
+  try {
+    await mcp.callTool("host:claude_browser", "navigate", { url: u });
+    const res = await mcp.callTool("host:claude_browser", "get_page_text", { max_chars: 60000 });
+    const t = typeof res.payload === "string" ? res.payload : (res.content || []).filter(c => c.type === "text").map(c => c.text).join("\n");
+    if (!t || t.length < 200) throw { code: "empty" };
+    return t;
+  } catch (e) {
+    const why = e?.code === "server_not_connected" ? "Lecture automatique possible seulement dans l'app Claude sur ordinateur."
+      : e?.code === "cancelled" || e?.code === "not_in_manifest" ? "Lecture de la page refusée."
+      : "La page n'a pas pu être lue.";
+    msg.replaceChildren(el("div", { class: "msg err", text: why + " Colle le texte de la page dans le second champ, puis relance." }));
+    return null;
+  } finally { btn.disabled = false; btn.textContent = old; }
+}
+
+// ---------- Démarrage ----------
+renderAll();
+const loadTimer = setTimeout(() => { if (!loaded) $("#status").textContent = "Le carnet ne répond pas encore. Vérifie ta connexion ; la page continue d'essayer."; }, 10000);
+function onData(list) {
+  recettes = list;
+  const first = !loaded;
+  loaded = true; renderAll();
+  if (current?.hash?.startsWith("r-")) { const y = sheet.scrollTop; const h = current.hash; current = null; openRecipe(h.slice(2), { quiet: true }); sheet.scrollTop = y; }
+  else if (first) route();
+}
+(async () => {
+  const cl = window.claude;
+  if (!cl?.use) {
+    clearTimeout(loadTimer);
+    if (Array.isArray(window.__DEMO)) { onData(window.__DEMO.map(x => ({ ...x }))); return; }
+    loaded = true; $("#status").textContent = "Ouvre cette page dans claude.ai pour voir et enregistrer les recettes."; renderAll(); return;
+  }
+  const [d, a, s, m, u] = await Promise.all(["db", "assets", "sample", "mcp", "user"].map(n => cl.use(n).catch(() => null)));
+  db = d; assets = a; sample = s; mcp = m;
+  if (u) { try { const w = await u.can("data.write"); if (w === false) canWrite = false; } catch {} }
+  if (!canWrite) addBtn.hidden = true;
+  if (!db) { clearTimeout(loadTimer); loaded = true; $("#status").textContent = "Connecte-toi à claude.ai pour voir le carnet."; renderAll(); return; }
+  db.collection("recettes").onSnapshot(snap => {
+    if (!snap.metadata.fromCache) { clearTimeout(loadTimer); $("#status").textContent = ""; }
+    onData(snap.docs.map(x => ({ id: x.id, ...x.data() })));
+  }, e => { clearTimeout(loadTimer); loaded = true; $("#status").textContent = "Le carnet est inaccessible (" + e.code + ")."; renderAll(); });
+})();
+})();
 </script>
+
+<script type="module" src="firebase.js"></script>
 </body>
 </html>
